@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventário RPG</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="inventory-container">
+        <h1>Inventário do Aventureiro</h1>
+        <div class="total-wealth">
+            <h3>Riqueza Total: <span id="totalWealthValue">0</span> moedas</h3>
+        </div>
+
+        <div class="main-categories">
+            <button class="category-tab active" data-category="equipamentos">EQUIPAMENTOS</button>
+            <button class="category-tab" data-category="consumiveis">CONSUMÍVEIS</button>
+            <button class="category-tab" data-category="uteis">ÚTEIS</button>
+            <button class="category-tab" data-category="riquezas">RIQUEZAS</button>
+            <button class="category-tab" data-category="diversos">DIVERSOS</button>
+        </div>
+
+        <div class="subcategory-tabs">
+            <button class="subcategory-tab active" data-subcategory="armas">Armas</button>
+            <button class="subcategory-tab" data-subcategory="equipaveis">Equipáveis</button>
+            <button class="subcategory-tab" data-subcategory="acessorios">Acessórios</button>
+            <button class="subcategory-tab" data-subcategory="outros-equip">Outros</button>
+        </div>
+        
+        <div class="inventory-content">
+            <div class="item-list">
+                <div class="controls-container">
+                    <div class="search-sort-container">
+                        <input type="text" id="searchInput" placeholder="Buscar itens...">
+                        <div class="sort-buttons">
+                            <button id="sortNameButton" class="sort-button">Nome</button>
+                            <button id="sortQuantityButton" class="sort-button">Qtd.</button>
+                        </div>
+                    </div>
+
+                    <div class="file-actions">
+                        <button id="exportButton" class="action-button">Exportar Invetário (.json)</button>
+                        <button id="importButton" class="action-button">Importar Invetário (.json)</button>
+                        <input type="file" id="importFile" accept=".json" style="display: none;">
+                    </div>
+                </div>
+
+                <div id="itemListWrapper">
+                    <p>Clique em um item para ver os detalhes.</p>
+                </div>
+            </div>
+
+            <div class="item-details">
+                <div class="details-text">
+                    <h3 class="details-name">Nenhum item selecionado</h3>
+                    <p class="details-type"></p>
+                    <p class="details-effect"></p>
+                    <p class="details-special-effect"></p>
+                    <p class="details-description"></p>
+                    <p class="details-quantity"></p>
+                    <p class="details-value hidden"></p>
+                </div>
+    
+                <div class="action-buttons-container">
+                    <div id="actionButtonsContainer" class="button-group">
+                        <button id="useItemButton" class="action-button use-button hidden">Usar</button>
+                        <button id="addQuantityButton" class="action-button add-button hidden">Adicionar Quantidade</button>
+                        <button id="removeButton" class="action-button remove-button hidden">Remover Item</button>
+                    </div>
+    
+                    <button id="moreActionButton" class="action-button more-button hidden">Mais...</button>
+
+                    <div id="secondaryActionsContainer" class="button-group hidden">
+                        <button id="editItemButton" class="action-button">Editar Item</button>
+                        <button id="exportItemTextButton" class="action-button">Exportar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="addItemFormContainer" class="add-item-form-container hidden">
+            <h2 id="formTitle">Adicionar Novo Item</h2>
+            <div id="importItemContainer" class="import-text-container">
+                <textarea id="importItemText" rows="6" placeholder="Cole o texto do item aqui para importar..."></textarea>
+                <button id="importItemTextButton" class="action-button">Importar Item</button>
+            </div>
+            <form id="addItemForm" class="add-item-form">
+                <div class="form-group">
+                    <label for="itemName">Nome do Item:</label>
+                    <input type="text" id="itemName" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemCategory">Categoria Principal:</label>
+                    <select id="itemCategory" required>
+                        <option value="equipamentos">EQUIPAMENTOS</option>
+                        <option value="consumiveis">CONSUMÍVEIS</option>
+                        <option value="uteis">ÚTEIS</option>
+                        <option value="riquezas">RIQUEZAS</option>
+                        <option value="diversos">DIVERSOS</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="itemSubcategory">Subcategoria:</label>
+                    <select id="itemSubcategory" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="itemType">Tipo do Item:</label>
+                    <input type="text" id="itemType" placeholder="Ex: Espada, Poção">
+                </div>
+                <div class="form-group">
+                    <label for="itemEffect">Efeito:</label>
+                    <input type="text" id="itemEffect" placeholder="Ex: +5 Dano Físico">
+                </div>
+                <div class="form-group">
+                    <label for="itemSpecialEffect">Efeito Especial (opcional):</label>
+                    <input type="text" id="itemSpecialEffect">
+                </div>
+                <div class="form-group">
+                    <label for="itemDescription">Descrição (opcional):</label>
+                    <textarea id="itemDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="itemQuantity">Quantidade:</label>
+                    <input type="number" id="itemQuantity" value="1" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemValue">Valor Unitário (apenas Riquezas):</label>
+                    <input type="number" id="itemValue" value="0" min="0">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="submitButton" class="action-button add-button">Adicionar Item</button>
+                    <button type="button" id="cancelAddItemButton" class="action-button remove-button">Cancelar</button>
+                </div>
+            </form>
+        </div>
+
+        <button id="showAddItemButton" class="action-button add-button">Adicionar Item</button>
+    </div>
+
+    <div id="removeModal" class="modal hidden">
+        <div class="modal-content">
+            <h4>Remover Item</h4>
+            <p id="removeModalText">Quantos itens de <strong id="itemToRemoveName"></strong> você quer remover?</p>
+            <div class="modal-input">
+                <input type="number" id="removeQuantityInput" min="1" value="1">
+                <span id="maxQuantitySpan"></span>
+            </div>
+            <div class="modal-buttons">
+                <button id="confirmRemoveButton" class="action-button remove-button">Confirmar</button>
+                <button id="removeAllButton" class="action-button remove-button hidden">Remover Tudo</button>
+                <button id="cancelRemoveButton" class="action-button">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="addModal" class="modal hidden">
+        <div class="modal-content">
+            <h4>Adicionar Item</h4>
+            <p>Quantos itens de <strong id="itemToAddName"></strong> você quer adicionar?</p>
+            <div class="modal-input">
+                <input type="number" id="addQuantityInput" min="1" value="1">
+            </div>
+            <div class="modal-buttons">
+                <button id="confirmAddButton" class="action-button add-button">Confirmar</button>
+                <button id="cancelAddButton" class="action-button">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+<div class="item-text-modal hidden">
+    <h4>Exportar Item</h4>
+    <textarea id="itemTextOutput" rows="8" readonly></textarea>
+    <button id="copyItemTextButton" class="action-button">Copiar Texto</button>
+</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
