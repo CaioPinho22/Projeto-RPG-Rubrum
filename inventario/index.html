@@ -9,12 +9,6 @@
 <body>
     <div class="inventory-container">
         <h1>Inventário do Aventureiro</h1>
-        <div class="file-actions">
-                        <button id="exportButton" class="action-button">Exportar Invetário (.json)</button>
-                        <button id="importButton" class="action-button">Importar Invetário (.json)</button>
-                        <input type="file" id="importFile" accept=".json" style="display: none;">
-                    </div>
-                </div>
         <div class="total-wealth">
             <h3>Riqueza Total: <span id="totalWealthValue">0</span> moedas</h3>
         </div>
@@ -44,6 +38,13 @@
                             <button id="sortQuantityButton" class="sort-button">Qtd.</button>
                         </div>
                     </div>
+
+                    <div class="file-actions">
+                        <button id="exportButton" class="action-button">Exportar Invetário (.json)</button>
+                        <button id="importButton" class="action-button">Importar Invetário (.json)</button>
+                        <input type="file" id="importFile" accept=".json" style="display: none;">
+                    </div>
+                </div>
 
                 <div id="itemListWrapper">
                     <p>Clique em um item para ver os detalhes.</p>
