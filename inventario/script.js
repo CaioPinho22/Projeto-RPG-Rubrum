@@ -2,51 +2,51 @@
 
 // Objeto para mapear categorias principais às suas subcategorias
 const subcategoriesData = {
-    equipamentos: ['Armas', 'Equipáveis', 'Acessórios', 'Outros'],
-    consumiveis: ['Poções', 'Arremessáveis', 'Utilitários', 'Munições', 'Outros'],
-    uteis: ['Ferramentas', 'Utilitários', 'Outros'],
-    riquezas: ['Moedas', 'Outros'],
-    diversos: ['Valioso', 'Missão', 'Itens']
+    equipamentos: ['Armas', 'Equipáveis', 'Acessórios', 'Outros'],
+    consumiveis: ['Poções', 'Arremessáveis', 'Utilitários', 'Munições', 'Outros'],
+    uteis: ['Ferramentas', 'Utilitários', 'Outros'],
+    riquezas: ['Moedas', 'Outros'],
+    diversos: ['Valioso', 'Missão', 'Itens']
 };
 
 // --- DADOS INICIAIS (FALLBACK SE NADA ESTIVER NO LOCALSTORAGE) ---
 const defaultItemsData = {
-    equipamentos: {
-        armas: [
-            { id: 'armalonga1', nome: 'Espada Longa', tipo: 'Espada', efeito: '+5 Dano Físico', efeitoEspecial: null, descricao: 'Uma espada bem balanceada.', quantidade: 1 },
-            { id: 'arcocurto1', nome: 'Arco Curto', tipo: 'Arco', efeito: '+3 Dano Perfurante', efeitoEspecial: null, descricao: 'Leve e fácil de manusear.', quantidade: 1 }
-        ],
-        equipaveis: [
-            { id: 'armaduracouro1', nome: 'Armadura de Couro', tipo: 'Armadura Leve', efeito: '+10 Defesa', efeitoEspecial: null, descricao: 'Feita de couro resistente.', quantidade: 1 }
-        ],
-        acessorios: [],
-        outros: []
-    },
-    consumiveis: {
-        pocoes: [
-            { id: 'curamenor1', nome: 'Poção de Cura Menor', tipo: 'Poção', efeito: 'Restaura 50 HP', descricao: 'Uma poção básica para ferimentos leves.', quantidade: 3 }
-        ],
-        arremessaveis: [],
-        utilitarios: [],
-        municoes: [],
-        outros: []
-    },
-    uteis: {
-        ferramentas: [],
-        utilitarios: [],
-        outros: []
-    },
-    riquezas: {
-        moedas: [
-            { id: 'moedaouro1', nome: 'Moeda de Ouro', tipo: 'Moeda', valorUnitario: 1, descricao: 'Uma moeda de ouro padrão.', quantidade: 170 }
-        ],
-        outros: []
-    },
-    diversos: {
-        valioso: [],
-        missao: [],
-        itens: []
-    }
+    equipamentos: {
+        armas: [
+            { id: 'armalonga1', nome: 'Espada Longa', tipo: 'Espada', efeito: '+5 Dano Físico', efeitoEspecial: null, descricao: 'Uma espada bem balanceada.', quantidade: 1 },
+            { id: 'arcocurto1', nome: 'Arco Curto', tipo: 'Arco', efeito: '+3 Dano Perfurante', efeitoEspecial: null, descricao: 'Leve e fácil de manusear.', quantidade: 1 }
+        ],
+        equipaveis: [
+            { id: 'armaduracouro1', nome: 'Armadura de Couro', tipo: 'Armadura Leve', efeito: '+10 Defesa', efeitoEspecial: null, descricao: 'Feita de couro resistente.', quantidade: 1 }
+        ],
+        acessorios: [],
+        outros: []
+    },
+    consumiveis: {
+        pocoes: [
+            { id: 'curamenor1', nome: 'Poção de Cura Menor', tipo: 'Poção', efeito: 'Restaura 50 HP', descricao: 'Uma poção básica para ferimentos leves.', quantidade: 3 }
+        ],
+        arremessaveis: [],
+        utilitarios: [],
+        municoes: [],
+        outros: []
+    },
+    uteis: {
+        ferramentas: [],
+        utilitarios: [],
+        outros: []
+    },
+    riquezas: {
+        moedas: [
+            { id: 'moedaouro1', nome: 'Moeda de Ouro', tipo: 'Moeda', valorUnitario: 1, descricao: 'Uma moeda de ouro padrão.', quantidade: 170 }
+        ],
+        outros: []
+    },
+    diversos: {
+        valioso: [],
+        missao: [],
+        itens: []
+    }
 };
 
 let itemsData = {};
@@ -127,7 +127,6 @@ let activeCategory = 'equipamentos';
 let activeSubcategory = 'armas';
 let activeItemId = null;
 let isEditMode = false;
-let showAllItems = false;
 
 // --- NOVAS VARIÁVEIS PARA FILTROS E ORDENAÇÃO ---
 const searchInput = document.getElementById('searchInput');
@@ -158,34 +157,34 @@ function updateSortButtons() {
 
 // --- FUNÇÕES DE LOCALSTORAGE ---
 function saveItemsToLocalStorage() {
-    localStorage.setItem('rpgInventoryItems', JSON.stringify(itemsData));
-    updateTotalWealth();
+    localStorage.setItem('rpgInventoryItems', JSON.stringify(itemsData));
+    updateTotalWealth();
 }
 
 function loadItemsFromLocalStorage() {
-    const storedItems = localStorage.getItem('rpgInventoryItems');
-    if (storedItems) {
-        itemsData = JSON.parse(storedItems);
-    } else {
-        itemsData = defaultItemsData;
-        saveItemsToLocalStorage();
-    }
+    const storedItems = localStorage.getItem('rpgInventoryItems');
+    if (storedItems) {
+        itemsData = JSON.parse(storedItems);
+    } else {
+        itemsData = defaultItemsData;
+        saveItemsToLocalStorage();
+    }
 }
 
 function updateTotalWealth() {
-    let totalValue = 0;
-    const wealthItems = itemsData.riquezas;
+    let totalValue = 0;
+    const wealthItems = itemsData.riquezas;
 
-    if (wealthItems) {
-        for (const subcategory in wealthItems) {
-            wealthItems[subcategory].forEach(item => {
-                if (item.valorUnitario && item.quantidade) {
-                    totalValue += item.valorUnitario * item.quantidade;
-                }
-            });
-        }
-    }
-    totalWealthValueSpan.textContent = totalValue.toLocaleString('pt-BR');
+    if (wealthItems) {
+        for (const subcategory in wealthItems) {
+            wealthItems[subcategory].forEach(item => {
+                if (item.valorUnitario && item.quantidade) {
+                    totalValue += item.valorUnitario * item.quantidade;
+                }
+            });
+        }
+    }
+    totalWealthValueSpan.textContent = totalValue.toLocaleString('pt-BR');
 }
 
 // --- FUNÇÕES DE EXPORTAÇÃO E IMPORTAÇÃO ---
@@ -234,104 +233,80 @@ function importInventory(event) {
 
 // --- FUNÇÕES DE EXIBIÇÃO E MANIPULAÇÃO DO INVENTÁRIO ---
 function displaySubcategories(category) {
-    subcategoryTabsContainer.innerHTML = '';
+    subcategoryTabsContainer.innerHTML = '';
 
-    // Calcula a contagem de todos os itens da categoria
-    const allItemsCount = Object.values(itemsData[category] || {}).flat().length;
-
-    // Cria e adiciona a aba 'Todos'
-    const allButton = document.createElement('button');
-    allButton.classList.add('subcategory-tab', 'all-tab');
-    allButton.textContent = `Todos (${allItemsCount})`;
-    allButton.dataset.subcategory = 'all';
-    subcategoryTabsContainer.appendChild(allButton);
-    
-    // Define a aba 'Todos' como ativa por padrão
-    allButton.classList.add('active');
-    showAllItems = true;
-    activeSubcategory = 'all';
-
-    const subcategories = subcategoriesData[category];
+    const subcategories = subcategoriesData[category];
 
     if (subcategories && subcategories.length > 0) {
-        subcategories.forEach((sub) => {
+        subcategories.forEach((sub, index) => {
             const button = document.createElement('button');
             button.classList.add('subcategory-tab');
-            
-            // Calcula a contagem de itens da subcategoria
-            const subKey = sub.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '-');
-            const subcategoryItemsCount = itemsData[category]?.[subKey]?.length || 0;
-            
-            // Adiciona o nome e a contagem ao texto do botão
-            button.textContent = `${sub} (${subcategoryItemsCount})`;
-            button.dataset.subcategory = subKey;
-            
+            button.textContent = sub;
+            button.dataset.subcategory = sub.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '-');
+
+            if (index === 0) {
+                button.classList.add('active');
+                activeSubcategory = button.dataset.subcategory;
+            }
             subcategoryTabsContainer.appendChild(button);
         });
+    } else {
+        subcategoryTabsContainer.innerHTML = '<p>Nenhuma subcategoria disponível para esta categoria.</p>';
+        activeSubcategory = null;
     }
-    
-    // Garante que o painel de itens de 'Todos' seja carregado
-    loadItems();
+
+    if (activeSubcategory) {
+        // MODIFICADO: Chama loadItems com a categoria e subcategoria, mas sem filtrar
+        loadItems();
+    } else {
+        // MODIFICADO: Muda a referência para o novo wrapper
+        itemListWrapper.innerHTML = '<p>Nenhum item disponível.</p>';
+    }
     displayItemDetails(null);
 }
 
 // MODIFICADO: Função para filtrar e ordenar os itens
 function filterAndSortItems(items) {
-    if (!items) {
-        return [];
-    }
+    if (!items) {
+        return [];
+    }
 
-    let filteredItems = [...items];
-    const searchTerm = searchInput.value.toLowerCase();
+    let filteredItems = [...items];
+    const searchTerm = searchInput.value.toLowerCase();
 
-    // 1. Filtrar
-    if (searchTerm) {
-        filteredItems = filteredItems.filter(item =>
-            item.nome.toLowerCase().includes(searchTerm)
-        );
-    }
+    // 1. Filtrar
+    if (searchTerm) {
+        filteredItems = filteredItems.filter(item =>
+            item.nome.toLowerCase().includes(searchTerm)
+        );
+    }
 
-    // 2. Ordenar
-    if (currentSort === 'name') {
-        filteredItems.sort((a, b) => a.nome.localeCompare(b.nome) * sortDirection);
-    } else if (currentSort === 'quantity') {
-        filteredItems.sort((a, b) => (a.quantidade - b.quantidade) * sortDirection);
-    }
+    // 2. Ordenar
+    if (currentSort === 'name') {
+        filteredItems.sort((a, b) => a.nome.localeCompare(b.nome) * sortDirection);
+    } else if (currentSort === 'quantity') {
+        filteredItems.sort((a, b) => (a.quantidade - b.quantidade) * sortDirection);
+    }
 
-    return filteredItems;
+    return filteredItems;
 }
 
 
 // MODIFICADO: Função loadItems agora usa a nova lógica
 function loadItems() {
-    // 1. Limpa o container da lista de itens
     itemListWrapper.innerHTML = '';
-    
-    let itemsToDisplay = [];
 
-    // 2. Decide qual lista de itens carregar
-    if (showAllItems) {
-        // Se a aba "Todos" estiver ativa, coleta todos os itens da categoria
-        const subcategories = itemsData[activeCategory];
-        if (subcategories) {
-            // Usa Object.values() para obter todos os arrays de subcategorias e .flat() para uni-los
-            itemsToDisplay = Object.values(subcategories).flat();
-        }
-    } else {
-        // Se uma subcategoria específica estiver ativa, carrega apenas os itens dela
-        itemsToDisplay = itemsData[activeCategory]?.[activeSubcategory] || [];
-    }
+    const items = itemsData[activeCategory]?.[activeSubcategory];
 
-    // 3. Aplica o filtro e a ordenação na lista de itens
-    const filteredAndSortedItems = filterAndSortItems(itemsToDisplay);
+    // Filtra e ordena a lista de inventário
+    const filteredAndSortedItems = filterAndSortItems(items);
 
-    // 4. Exibe os itens na tela
     if (filteredAndSortedItems && filteredAndSortedItems.length > 0) {
         filteredAndSortedItems.forEach(item => {
             const itemCard = document.createElement('div');
             itemCard.classList.add('item-card');
             itemCard.dataset.itemId = item.id;
-            
+
             itemCard.addEventListener('click', () => {
                 itemListWrapper.querySelectorAll('.item-card').forEach(card => {
                     card.classList.remove('active');
@@ -352,9 +327,8 @@ function loadItems() {
             itemCard.appendChild(itemQuantity);
             itemListWrapper.appendChild(itemCard);
         });
-
     } else {
-        itemListWrapper.innerHTML = '<p>Nenhum item nesta categoria.</p>';
+        itemListWrapper.innerHTML = '<p>Nenhum item nesta subcategoria.</p>';
     }
 }
 
@@ -475,7 +449,7 @@ function displayItemDetails(item) {
     exportItemTextButton.classList.add('hidden')
     itemTextModal.classList.add('hidden');
 
-    if (item) {
+    if (item) {
         detailsName.textContent = item.nome || 'N/A';
         detailsType.innerHTML = `<span>Tipo:</span> ${item.tipo || 'N/A'}`;
         detailsEffect.innerHTML = `<span>Efeito:</span> ${item.efeito || 'N/A'}`;
@@ -514,158 +488,117 @@ function displayItemDetails(item) {
     }
 }
 
-function handleAddQuantity(itemId, quantity) {
-    // NOVO: Encontra o item em qualquer subcategoria da categoria ativa
-    let subcategoryToUpdate = null;
-    let itemToUpdate = null;
-    
-    // Itera sobre as subcategorias para encontrar o item
-    for (const subcategory in itemsData[activeCategory]) {
-        const itemsInSub = itemsData[activeCategory][subcategory];
-        const foundItem = itemsInSub.find(i => i.id === itemId);
-        if (foundItem) {
-            itemToUpdate = foundItem;
-            // A subcategoria não é necessária aqui, mas é bom manter a referência
-            break; 
-        }
-    }
-    
-    if (itemToUpdate) {
-        itemToUpdate.quantidade += quantity;
-        alert(`Adicionadas ${quantity} unidades de '${itemToUpdate.nome}'.`);
-        
+function handleAddQuantity(itemId, quantityToAdd) {
+    const items = itemsData[activeCategory]?.[activeSubcategory];
+    const item = items.find(i => i.id === itemId);
+
+    if (item) {
+        item.quantidade += quantityToAdd;
+        alert(`${quantityToAdd} unidades de '${item.nome}' adicionadas.`);
         saveItemsToLocalStorage();
-        loadItems();
-        displayItemDetails(itemToUpdate);
-        updateTabCounts(); // NOVO: Atualiza a contagem depois de adicionar
-    } else {
-        alert('Erro: Item não encontrado para adicionar quantidade.');
+        loadItems(); // MODIFICADO: Chama loadItems sem argumentos
+        displayItemDetails(item);
     }
 }
 
 function handleUseItem(itemId) {
-    // NOVO: Encontra o item em qualquer subcategoria da categoria ativa
-    let subcategoryToUpdate = null;
-    let itemToUse = null;
+    const items = itemsData[activeCategory]?.[activeSubcategory];
+    const itemIndex = items.findIndex(item => item.id === itemId);
 
-    for (const subcategory in itemsData[activeCategory]) {
-        const itemsInSub = itemsData[activeCategory][subcategory];
-        const foundItem = itemsInSub.find(i => i.id === itemId);
-        if (foundItem) {
-            subcategoryToUpdate = subcategory;
-            itemToUse = foundItem;
-            break;
-        }
-    }
-
-    if (itemToUse && subcategoryToUpdate) {
-        itemToUse.quantidade -= 1;
-        alert(`Você usou 1 unidade de '${itemToUse.nome}'.`);
-
-        if (itemToUse.quantidade <= 0) {
-            itemsData[activeCategory][subcategoryToUpdate] = itemsData[activeCategory][subcategoryToUpdate].filter(i => i.id !== itemId);
-            alert(`Item '${itemToUse.nome}' consumido completamente e removido do inventário.`);
-            displayItemDetails(null);
-        } else {
-            displayItemDetails(itemToUse);
-        }
-
-        saveItemsToLocalStorage();
-        loadItems();
-    }
-}
-
-function handleRemoveItem(itemId, quantity) {
-    // NOVO: Encontra o item em qualquer subcategoria da categoria ativa
-    let subcategoryToUpdate = null;
-    let itemToRemove = null;
-
-    for (const subcategory in itemsData[activeCategory]) {
-        const itemsInSub = itemsData[activeCategory][subcategory];
-        const foundItem = itemsInSub.find(i => i.id === itemId);
-        if (foundItem) {
-            subcategoryToUpdate = subcategory;
-            itemToRemove = foundItem;
-            break;
-        }
-    }
-
-    if (itemToRemove && subcategoryToUpdate) {
-        if (quantity >= itemToRemove.quantidade) {
-            // Remove o item da subcategoria
-            itemsData[activeCategory][subcategoryToUpdate] = itemsData[activeCategory][subcategoryToUpdate].filter(i => i.id !== itemId);
-        } else {
-            // Apenas diminui a quantidade
-            itemToRemove.quantidade -= quantity;
-        }
-
-        saveItemsToLocalStorage();
-        loadItems();
-        updateTabCounts(); // NOVO: Atualiza a contagem depois de adicionar
+    if (itemIndex > -1) {
+        const item = items[itemIndex];
         
-         if (isItemCompletelyRemoved) {
+        item.quantidade -= 1;
+        alert(`Você usou 1 unidade de '${item.nome}'.`);
+        
+        if (item.quantidade <= 0) {
+            items.splice(itemIndex, 1);
+            alert(`Item '${item.nome}' consumido completamente e removido do inventário.`);
             displayItemDetails(null);
         } else {
-            displayItemDetails(itemToRemove);
+            displayItemDetails(item);
         }
+        
+        saveItemsToLocalStorage();
+        loadItems(); // MODIFICADO: Chama loadItems sem argumentos
     }
 }
 
+function handleRemoveItem(itemId, quantityToRemove) {
+    const items = itemsData[activeCategory]?.[activeSubcategory];
+    const itemIndex = items.findIndex(item => item.id === itemId);
+
+    if (itemIndex > -1) {
+        const item = items[itemIndex];
+        
+        if (item.quantidade <= quantityToRemove) {
+            items.splice(itemIndex, 1);
+            alert(`Item '${item.nome}' removido completamente.`);
+            displayItemDetails(null);
+        } else {
+            item.quantidade -= quantityToRemove;
+            alert(`${quantityToRemove} unidades de '${item.nome}' removidas.`);
+            displayItemDetails(item);
+        }
+
+        saveItemsToLocalStorage();
+        loadItems(); // MODIFICADO: Chama loadItems sem argumentos
+    }
+}
 
 function updateSubcategoryOptions() {
-    const selectedCategory = itemCategorySelect.value;
-    const subcategories = subcategoriesData[selectedCategory];
+    const selectedCategory = itemCategorySelect.value;
+    const subcategories = subcategoriesData[selectedCategory];
 
-    itemSubcategorySelect.innerHTML = '';
-    if (subcategories && subcategories.length > 0) {
-        subcategories.forEach(sub => {
-            const option = document.createElement('option');
-            option.value = sub.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '-');
-            option.textContent = sub;
-            itemSubcategorySelect.appendChild(option);
-        });
-    } else {
-        const option = document.createElement('option');
-        option.value = 'outros';
-        option.textContent = 'Outros';
-        itemSubcategorySelect.appendChild(option);
-    }
+    itemSubcategorySelect.innerHTML = '';
+    if (subcategories && subcategories.length > 0) {
+        subcategories.forEach(sub => {
+            const option = document.createElement('option');
+            option.value = sub.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '-');
+            option.textContent = sub;
+            itemSubcategorySelect.appendChild(option);
+        });
+    } else {
+        const option = document.createElement('option');
+        option.value = 'outros';
+        option.textContent = 'Outros';
+        itemSubcategorySelect.appendChild(option);
+    }
 }
 
 function handleFormSubmit(event) {
-    event.preventDefault();
+    event.preventDefault();
 
-    if (isEditMode) {
-        saveEditedItem();
-    } else {
-        addNewItem();
-    }
+    if (isEditMode) {
+        saveEditedItem();
+    } else {
+        addNewItem();
+    }
 }
 
 function addNewItem() {
-    const itemName = document.getElementById('itemName').value;
-    const itemCategory = itemCategorySelect.value;
-    const itemSubcategory = itemSubcategorySelect.value;
-    const itemType = document.getElementById('itemType').value || null;
-    const itemEffect = document.getElementById('itemEffect').value || null;
-    const itemSpecialEffect = document.getElementById('itemSpecialEffect').value || null;
-    const itemDescription = document.getElementById('itemDescription').value || null;
-    const itemQuantity = parseInt(document.getElementById('itemQuantity').value, 10);
-    const itemValue = parseInt(document.getElementById('itemValue').value, 10);
+    const itemName = document.getElementById('itemName').value;
+    const itemCategory = itemCategorySelect.value;
+    const itemSubcategory = itemSubcategorySelect.value;
+    const itemType = document.getElementById('itemType').value || null;
+    const itemEffect = document.getElementById('itemEffect').value || null;
+    const itemSpecialEffect = document.getElementById('itemSpecialEffect').value || null;
+    const itemDescription = document.getElementById('itemDescription').value || null;
+    const itemQuantity = parseInt(document.getElementById('itemQuantity').value, 10);
+    const itemValue = parseInt(document.getElementById('itemValue').value, 10);
 
-    if (!itemName || !itemCategory || !itemSubcategory || isNaN(itemQuantity) || itemQuantity < 1) {
-        alert('Por favor, preencha os campos obrigatórios.');
-        return;
-    }
-    
-    if (itemCategory === 'riquezas' && itemSubcategory === 'moedas' && itemName.toLowerCase() === 'moeda de ouro') {
+    if (!itemName || !itemCategory || !itemSubcategory || isNaN(itemQuantity) || itemQuantity < 1) {
+        alert('Por favor, preencha os campos obrigatórios.');
+        return;
+    }
+    
+    if (itemCategory === 'riquezas' && itemSubcategory === 'moedas' && itemName.toLowerCase() === 'moeda de ouro') {
     const existingGoldCoin = itemsData.riquezas.moedas.find(item => item.nome.toLowerCase() === 'moeda de ouro');
     if (existingGoldCoin) {
         existingGoldCoin.quantidade += itemQuantity;
         alert(`${itemQuantity} unidades de 'Moeda de Ouro' adicionadas.`);
         saveItemsToLocalStorage();
         loadItems();
-        updateTabCounts(); // NOVO: Atualiza a contagem depois de adicionar/editar
         addItemForm.reset();
         addItemFormContainer.classList.add('hidden');
         showAddItemButton.classList.remove('hidden');
@@ -674,143 +607,140 @@ function addNewItem() {
     }
 }
 
-    const newItemId = itemName.toLowerCase().replace(/\s/g, '-') + '-' + Date.now();
-    const newItem = {
-        id: newItemId,
-        nome: itemName,
-        tipo: itemType,
-        efeito: itemEffect,
-        efeitoEspecial: itemSpecialEffect,
-        descricao: itemDescription,
-        quantidade: itemQuantity
-    };
+    const newItemId = itemName.toLowerCase().replace(/\s/g, '-') + '-' + Date.now();
+    const newItem = {
+        id: newItemId,
+        nome: itemName,
+        tipo: itemType,
+        efeito: itemEffect,
+        efeitoEspecial: itemSpecialEffect,
+        descricao: itemDescription,
+        quantidade: itemQuantity
+    };
 
-    if (itemCategory === 'riquezas') {
-        newItem.valorUnitario = isNaN(itemValue) ? 0 : itemValue;
-    }
+    if (itemCategory === 'riquezas') {
+        newItem.valorUnitario = isNaN(itemValue) ? 0 : itemValue;
+    }
 
-    if (!itemsData[itemCategory]) {
-        itemsData[itemCategory] = {};
-    }
-    if (!itemsData[itemCategory][itemSubcategory]) {
-        itemsData[itemCategory][itemSubcategory] = [];
-    }
+    if (!itemsData[itemCategory]) {
+        itemsData[itemCategory] = {};
+    }
+    if (!itemsData[itemCategory][itemSubcategory]) {
+        itemsData[itemCategory][itemSubcategory] = [];
+    }
 
-    itemsData[itemCategory][itemSubcategory].push(newItem);
-    saveItemsToLocalStorage();
+    itemsData[itemCategory][itemSubcategory].push(newItem);
+    saveItemsToLocalStorage();
 
-    mainCategoryTabs.forEach(t => t.classList.remove('active'));
-    document.querySelector(`.category-tab[data-category="${itemCategory}"]`).classList.add('active');
-    activeCategory = itemCategory;
+    mainCategoryTabs.forEach(t => t.classList.remove('active'));
+    document.querySelector(`.category-tab[data-category="${itemCategory}"]`).classList.add('active');
+    activeCategory = itemCategory;
 
-    displaySubcategories(itemCategory);
+    displaySubcategories(itemCategory);
 
-    const newSubcategoryButton = document.querySelector(`.subcategory-tab[data-subcategory="${itemSubcategory}"]`);
-    if (newSubcategoryButton) {
-        subcategoryTabsContainer.querySelectorAll('.subcategory-tab').forEach(t => t.classList.remove('active'));
-        newSubcategoryButton.classList.add('active');
-        activeSubcategory = itemSubcategory;
-        loadItems(); // MODIFICADO: Chama loadItems sem argumentos
-    }
+    const newSubcategoryButton = document.querySelector(`.subcategory-tab[data-subcategory="${itemSubcategory}"]`);
+    if (newSubcategoryButton) {
+        subcategoryTabsContainer.querySelectorAll('.subcategory-tab').forEach(t => t.classList.remove('active'));
+        newSubcategoryButton.classList.add('active');
+        activeSubcategory = itemSubcategory;
+        loadItems(); // MODIFICADO: Chama loadItems sem argumentos
+    }
 
-    addItemForm.reset();
-    addItemFormContainer.classList.add('hidden');
-    showAddItemButton.classList.remove('hidden');
-    alert('Item adicionado com sucesso e salvo!');
+    addItemForm.reset();
+    addItemFormContainer.classList.add('hidden');
+    showAddItemButton.classList.remove('hidden');
+    alert('Item adicionado com sucesso e salvo!');
 }
 
 function saveEditedItem() {
-    const itemName = document.getElementById('itemName').value;
-    const itemCategory = itemCategorySelect.value;
-    const itemSubcategory = itemSubcategorySelect.value;
-    const itemType = document.getElementById('itemType').value || null;
-    const itemEffect = document.getElementById('itemEffect').value || null;
-    const itemSpecialEffect = document.getElementById('itemSpecialEffect').value || null;
-    const itemDescription = document.getElementById('itemDescription').value || null;
-    const itemQuantity = parseInt(document.getElementById('itemQuantity').value, 10);
-    const itemValue = parseInt(document.getElementById('itemValue').value, 10);
+    const itemName = document.getElementById('itemName').value;
+    const itemCategory = itemCategorySelect.value;
+    const itemSubcategory = itemSubcategorySelect.value;
+    const itemType = document.getElementById('itemType').value || null;
+    const itemEffect = document.getElementById('itemEffect').value || null;
+    const itemSpecialEffect = document.getElementById('itemSpecialEffect').value || null;
+    const itemDescription = document.getElementById('itemDescription').value || null;
+    const itemQuantity = parseInt(document.getElementById('itemQuantity').value, 10);
+    const itemValue = parseInt(document.getElementById('itemValue').value, 10);
 
-    if (!itemName || !itemCategory || !itemSubcategory || isNaN(itemQuantity) || itemQuantity < 1) {
-        alert('Por favor, preencha os campos obrigatórios.');
-        return;
-    }
+    if (!itemName || !itemCategory || !itemSubcategory || isNaN(itemQuantity) || itemQuantity < 1) {
+        alert('Por favor, preencha os campos obrigatórios.');
+        return;
+    }
 
-    const items = itemsData[activeCategory]?.[activeSubcategory];
-    const itemIndex = items.findIndex(item => item.id === activeItemId);
+    const items = itemsData[activeCategory]?.[activeSubcategory];
+    const itemIndex = items.findIndex(item => item.id === activeItemId);
 
-    if (itemIndex > -1) {
-        const itemToUpdate = items[itemIndex];
-        itemToUpdate.nome = itemName;
-        itemToUpdate.tipo = itemType;
-        itemToUpdate.efeito = itemEffect;
-        itemToUpdate.efeitoEspecial = itemSpecialEffect;
-        itemToUpdate.descricao = itemDescription;
-        itemToUpdate.quantidade = itemQuantity;
-        if (itemCategory === 'riquezas') {
-            itemToUpdate.valorUnitario = isNaN(itemValue) ? 0 : itemValue;
-        }
+    if (itemIndex > -1) {
+        const itemToUpdate = items[itemIndex];
+        itemToUpdate.nome = itemName;
+        itemToUpdate.tipo = itemType;
+        itemToUpdate.efeito = itemEffect;
+        itemToUpdate.efeitoEspecial = itemSpecialEffect;
+        itemToUpdate.descricao = itemDescription;
+        itemToUpdate.quantidade = itemQuantity;
+        if (itemCategory === 'riquezas') {
+            itemToUpdate.valorUnitario = isNaN(itemValue) ? 0 : itemValue;
+        }
 
-        saveItemsToLocalStorage();
+        saveItemsToLocalStorage();
 
-        addItemFormContainer.classList.add('hidden');
-        showAddItemButton.classList.remove('hidden');
-        addItemForm.reset();
-        
-        loadItems(); // MODIFICADO: Chama loadItems sem argumentos
-        displayItemDetails(itemToUpdate);
-        
-        alert(`Item '${itemName}' editado com sucesso!`);
-    }
+        addItemFormContainer.classList.add('hidden');
+        showAddItemButton.classList.remove('hidden');
+        addItemForm.reset();
+        
+        loadItems(); // MODIFICADO: Chama loadItems sem argumentos
+        displayItemDetails(itemToUpdate);
+        
+        alert(`Item '${itemName}' editado com sucesso!`);
+    }
 
-    isEditMode = false;
-    document.getElementById('formTitle').textContent = 'Adicionar Novo Item';
-    document.getElementById('submitButton').textContent = 'Adicionar';
+    isEditMode = false;
+    document.getElementById('formTitle').textContent = 'Adicionar Novo Item';
+    document.getElementById('submitButton').textContent = 'Adicionar';
 }
 
 function startEditItem() {
     isEditMode = true;
-    
-    // NOVO: Coleta todos os itens da categoria para buscar o item
-    const allCategoryItems = Object.values(itemsData[activeCategory] || {}).flat();
-    const item = allCategoryItems.find(i => i.id === activeItemId);
-    
-    // Se o item for encontrado, preenche o formulário
+    const items = itemsData[activeCategory]?.[activeSubcategory];
+    const item = items.find(i => i.id === activeItemId);
+
     if (item) {
-        document.getElementById('formTitle').textContent = 'Editar Item';
-        document.getElementById('submitButton').textContent = 'Salvar Alterações';
+        document.getElementById('formTitle').textContent = 'Editar Item';
+        document.getElementById('submitButton').textContent = 'Salvar Alterações';
 
-        addItemFormContainer.classList.remove('hidden');
-        showAddItemButton.classList.add('hidden');
+        addItemFormContainer.classList.remove('hidden');
+        showAddItemButton.classList.add('hidden');
         importItemContainer.classList.add('hidden')
-        secondaryActionsContainer.classList.add('hidden'); // Esconde o container secundário ao entrar no modo de edição
+        secondaryActionsContainer.classList.add('hidden'); // Esconde o container secundário ao entrar no modo de edição
 
-        document.getElementById('itemName').value = item.nome;
-        document.getElementById('itemType').value = item.tipo || '';
-        document.getElementById('itemEffect').value = item.efeito || '';
-        document.getElementById('itemSpecialEffect').value = item.efeitoEspecial || '';
-        document.getElementById('itemDescription').value = item.descricao || '';
-        document.getElementById('itemQuantity').value = item.quantidade;
-        
-        itemCategorySelect.value = activeCategory;
-        updateSubcategoryOptions();
-        itemSubcategorySelect.value = activeSubcategory;
-        
-        if (activeCategory === 'riquezas') {
-            document.getElementById('itemValue').value = item.valorUnitario || 0;
-        } else {
-            document.getElementById('itemValue').value = '';
-        }
-    }
+        document.getElementById('itemName').value = item.nome;
+        document.getElementById('itemType').value = item.tipo || '';
+        document.getElementById('itemEffect').value = item.efeito || '';
+        document.getElementById('itemSpecialEffect').value = item.efeitoEspecial || '';
+        document.getElementById('itemDescription').value = item.descricao || '';
+        document.getElementById('itemQuantity').value = item.quantidade;
+        
+        itemCategorySelect.value = activeCategory;
+        updateSubcategoryOptions();
+        itemSubcategorySelect.value = activeSubcategory;
+        
+        if (activeCategory === 'riquezas') {
+            document.getElementById('itemValue').value = item.valorUnitario || 0;
+        } else {
+            document.getElementById('itemValue').value = '';
+        }
+    }
 }
 
 // --- Event Listeners ---
 mainCategoryTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-        mainCategoryTabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        activeCategory = tab.dataset.category;
-        displaySubcategories(activeCategory);
-    });
+    tab.addEventListener('click', () => {
+        mainCategoryTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        activeCategory = tab.dataset.category;
+        displaySubcategories(activeCategory);
+    });
 });
 
 subcategoryTabsContainer.addEventListener('click', (event) => {
@@ -818,42 +748,37 @@ subcategoryTabsContainer.addEventListener('click', (event) => {
     if (clickedTab) {
         subcategoryTabsContainer.querySelectorAll('.subcategory-tab').forEach(t => t.classList.remove('active'));
         clickedTab.classList.add('active');
-        activeSubcategory = clickedTab.dataset.subcategory;
-        if (activeSubcategory === 'all') {
-            showAllItems = true;
-        } else {
-            showAllItems = false;
-        }
-        loadItems(); // MODIFICADO: Chama loadItems sem argumentos
-    }
+        activeSubcategory = clickedTab.dataset.subcategory;
+        loadItems(); // MODIFICADO: Chama loadItems sem argumentos
+    }
 });
 
 addItemForm.addEventListener('submit', handleFormSubmit);
 
 showAddItemButton.addEventListener('click', () => {
-    addItemFormContainer.classList.remove('hidden');
-    showAddItemButton.classList.add('hidden');
+    addItemFormContainer.classList.remove('hidden');
+    showAddItemButton.classList.add('hidden');
     importItemContainer.classList.remove('hidden')
-    isEditMode = false;
-    document.getElementById('formTitle').textContent = 'Adicionar Novo Item';
-    document.getElementById('submitButton').textContent = 'Adicionar';
-    addItemForm.reset();
-    updateSubcategoryOptions();
+    isEditMode = false;
+    document.getElementById('formTitle').textContent = 'Adicionar Novo Item';
+    document.getElementById('submitButton').textContent = 'Adicionar';
+    addItemForm.reset();
+    updateSubcategoryOptions();
 });
 
 cancelAddItemButton.addEventListener('click', () => {
-    addItemFormContainer.classList.add('hidden');
-    showAddItemButton.classList.remove('hidden');
-    addItemForm.reset(); // Limpa o formulário ao cancelar, útil para evitar dados de edição
+    addItemFormContainer.classList.add('hidden');
+    showAddItemButton.classList.remove('hidden');
+    addItemForm.reset(); // Limpa o formulário ao cancelar, útil para evitar dados de edição
 });
 
 itemCategorySelect.addEventListener('change', updateSubcategoryOptions);
 
 // NOVO: Event listener para o botão "Mais..."
 moreActionButton.addEventListener('click', () => {
-    secondaryActionsContainer.classList.toggle('hidden');
-    // Alterna a visibilidade do botão de edição junto com o container
-    editItemButton.classList.toggle('hidden');
+    secondaryActionsContainer.classList.toggle('hidden');
+    // Alterna a visibilidade do botão de edição junto com o container
+    editItemButton.classList.toggle('hidden');
     exportItemTextButton.classList.toggle('hidden')
 });
 
@@ -861,9 +786,8 @@ moreActionButton.addEventListener('click', () => {
 editItemButton.addEventListener('click', startEditItem);
 
 addQuantityButton.addEventListener('click', () => {
-    // NOVO: Busca o item em todas as subcategorias
-    const allCategoryItems = Object.values(itemsData[activeCategory] || {}).flat();
-    const item = allCategoryItems.find(i => i.id === activeItemId);
+    const items = itemsData[activeCategory]?.[activeSubcategory];
+    const item = items.find(i => i.id === activeItemId);
 
     if (item) {
         itemToAddName.textContent = item.nome;
@@ -873,25 +797,24 @@ addQuantityButton.addEventListener('click', () => {
 });
 
 confirmAddButton.addEventListener('click', () => {
-    const quantityToAdd = parseInt(addQuantityInput.value, 10);
-    if (quantityToAdd > 0) {
-        handleAddQuantity(activeItemId, quantityToAdd);
-        addModal.classList.add('hidden');
-    } else {
-        alert('Quantidade inválida.');
-    }
+    const quantityToAdd = parseInt(addQuantityInput.value, 10);
+    if (quantityToAdd > 0) {
+        handleAddQuantity(activeItemId, quantityToAdd);
+        addModal.classList.add('hidden');
+    } else {
+        alert('Quantidade inválida.');
+    }
 });
 
 cancelAddButton.addEventListener('click', () => {
-    addModal.classList.add('hidden');
+    addModal.classList.add('hidden');
 });
 
 removeButton.addEventListener('click', () => {
-    // NOVO: Busca o item em todas as subcategorias
-    const allCategoryItems = Object.values(itemsData[activeCategory] || {}).flat();
-    const item = allCategoryItems.find(i => i.id === activeItemId);
+    const items = itemsData[activeCategory]?.[activeSubcategory];
+    const item = items.find(i => i.id === activeItemId);
 
-    if (item) {
+    if (item) {
         itemToRemoveName.textContent = item.nome;
         if (item.quantidade > 1) {
             document.getElementById('removeModalText').textContent = `Quantos itens de ${item.nome} você quer remover?`;
@@ -902,7 +825,7 @@ removeButton.addEventListener('click', () => {
             maxQuantitySpan.classList.remove('hidden');
             removeAllButton.classList.remove('hidden');
             confirmRemoveButton.textContent = 'Confirmar';
-        } else {
+        } else {
             document.getElementById('removeModalText').textContent = `Você tem certeza que deseja remover ${item.nome}?`;
             removeQuantityInput.classList.add('hidden');
             maxQuantitySpan.classList.add('hidden');
@@ -914,16 +837,10 @@ removeButton.addEventListener('click', () => {
 });
 
 confirmRemoveButton.addEventListener('click', () => {
-    // NOVO: Coleta todos os itens da categoria para buscar o item
-    const allCategoryItems = Object.values(itemsData[activeCategory] || {}).flat();
-    const item = allCategoryItems.find(i => i.id === activeItemId);
+    const items = itemsData[activeCategory]?.[activeSubcategory];
+    const item = items.find(i => i.id === activeItemId);
     const quantityToRemove = parseInt(removeQuantityInput.value, 10);
-    
-    if (!item) {
-        alert('Erro: Item não encontrado para remoção.');
-        return;
-    }
-    
+
     if (item.quantidade > 1) {
         if (quantityToRemove > 0 && quantityToRemove <= item.quantidade) {
             handleRemoveItem(activeItemId, quantityToRemove);
@@ -946,39 +863,35 @@ confirmRemoveButton.addEventListener('click', () => {
 });
 
 cancelRemoveButton.addEventListener('click', () => {
-    removeModal.classList.add('hidden');
-    // Retorna o modal ao estado original
-    removeQuantityInput.classList.remove('hidden');
-    maxQuantitySpan.classList.remove('hidden');
-    removeAllButton.classList.remove('hidden');
-    confirmRemoveButton.textContent = 'Confirmar';
-    document.getElementById('removeModalText').textContent = 'Quantos itens de você quer remover?';
+    removeModal.classList.add('hidden');
+    // Retorna o modal ao estado original
+    removeQuantityInput.classList.remove('hidden');
+    maxQuantitySpan.classList.remove('hidden');
+    removeAllButton.classList.remove('hidden');
+    confirmRemoveButton.textContent = 'Confirmar';
+    document.getElementById('removeModalText').textContent = 'Quantos itens de você quer remover?';
 });
 
 removeAllButton.addEventListener('click', () => {
     if (activeItemId) {
-        // NOVO: Coleta todos os itens da categoria para buscar o item
-        const allCategoryItems = Object.values(itemsData[activeCategory] || {}).flat();
-        const item = allCategoryItems.find(i => i.id === activeItemId);
-        
+        const items = itemsData[activeCategory]?.[activeSubcategory];
+        const item = items.find(i => i.id === activeItemId);
         if (item) {
             handleRemoveItem(activeItemId, item.quantidade);
             removeModal.classList.add('hidden');
-        } else {
-            alert('Erro: Item não encontrado para remoção.');
         }
     }
 });
 
 useItemButton.addEventListener('click', () => {
-    if (activeItemId) {
-        handleUseItem(activeItemId);
-    }
+    if (activeItemId) {
+        handleUseItem(activeItemId);
+    }
 });
 
 // --- NOVOS EVENT LISTENERS PARA FILTROS E ORDENAÇÃO ---
 searchInput.addEventListener('input', () => {
-    loadItems();
+    loadItems();
 });
 
 sortNameButton.addEventListener('click', () => {
@@ -1035,9 +948,9 @@ importItemTextButton.addEventListener('click', () => {
 
 // Novo event listener para o botão de compartilhar item
 exportItemTextButton.addEventListener('click', () => {
-    // NOVO: Coleta todos os itens da categoria para buscar o item
-    const allCategoryItems = Object.values(itemsData[activeCategory] || {}).flat();
-    const item = allCategoryItems.find(i => i.id === activeItemId);
+    // Garante que um item esteja selecionado antes de abrir o modal
+    const items = itemsData[activeCategory]?.[activeSubcategory];
+    const item = items.find(i => i.id === activeItemId);
 
     if (item) {
         itemTextOutput.value = generateItemText(item);
@@ -1045,60 +958,33 @@ exportItemTextButton.addEventListener('click', () => {
     }
 });
 
-// --- FUNÇÃO PARA ATUALIZAR CONTAGEM DE ITENS NAS ABAS ---
-function updateTabCounts() {
-    // Atualiza as abas de Categoria
-    const categoryTabs = document.querySelectorAll('.category-tab');
-    categoryTabs.forEach(tab => {
-        const category = tab.dataset.category;
-        const categoryItemsCount = Object.values(itemsData[category] || {}).flat().length;
-        tab.textContent = `${category.toUpperCase()} (${categoryItemsCount})`;
-    });
-
-    // Atualiza as abas de Subcategoria
-    const subcategoryTabs = document.querySelectorAll('.subcategory-tab');
-    const activeCategoryData = itemsData[activeCategory] || {};
-    subcategoryTabs.forEach(tab => {
-        const subcategory = tab.dataset.subcategory;
-        if (subcategory === 'all') {
-            const allItemsCount = Object.values(activeCategoryData).flat().length;
-            tab.textContent = `Todos (${allItemsCount})`;
-        } else {
-            const subcategoryItemsCount = activeCategoryData[subcategory]?.length || 0;
-            const subName = tab.textContent.split(' ')[0];
-            tab.textContent = `${subName} (${subcategoryItemsCount})`;
-        }
-    });
-}
-
 // --- Inicialização do Inventário ---
 document.addEventListener('DOMContentLoaded', () => {
-    loadItemsFromLocalStorage();
+    loadItemsFromLocalStorage();
 
-    const initialCategoryTab = document.querySelector('.category-tab[data-category="equipamentos"]');
-    if (initialCategoryTab) {
-        initialCategoryTab.classList.add('active');
-        activeCategory = 'equipamentos';
-        displaySubcategories(activeCategory);
-    }
+    const initialCategoryTab = document.querySelector('.category-tab[data-category="equipamentos"]');
+    if (initialCategoryTab) {
+        initialCategoryTab.classList.add('active');
+        activeCategory = 'equipamentos';
+        displaySubcategories(activeCategory);
+    }
 
-    removeModal.classList.add('hidden');
-    addModal.classList.add('hidden');
-    addItemFormContainer.classList.add('hidden');
-    showAddItemButton.classList.remove('hidden');
-    
-    // Oculta os botões de ação e o container secundário na inicialização
-    removeButton.classList.add('hidden');
-    useItemButton.classList.add('hidden');
-    addQuantityButton.classList.add('hidden');
-    moreActionButton.classList.add('hidden');
-    secondaryActionsContainer.classList.add('hidden');
+    removeModal.classList.add('hidden');
+    addModal.classList.add('hidden');
+    addItemFormContainer.classList.add('hidden');
+    showAddItemButton.classList.remove('hidden');
+    
+    // Oculta os botões de ação e o container secundário na inicialização
+    removeButton.classList.add('hidden');
+    useItemButton.classList.add('hidden');
+    addQuantityButton.classList.add('hidden');
+    moreActionButton.classList.add('hidden');
+    secondaryActionsContainer.classList.add('hidden');
 
     itemTextModal.classList.add('hidden');
 
-    
+
     updateSubcategoryOptions();
     updateTotalWealth();
     updateSortButtons(); // NOVO: Inicializa a aparência dos botões de ordenação
-    updateTabCounts();
 });
