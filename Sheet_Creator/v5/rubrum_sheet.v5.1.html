@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador de Ficha Rubrum — Versão V5.1</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700;800&display=swap');
+
+    /* Utilitário: todos os números usam Inter */
+    .num { font-family: 'Inter', sans-serif !important; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Cores Originais de Rubrum */
+      --rubrum-red: #8B1A1A;
+      --rubrum-gold: #C9A84C;
+      --rubrum-dark: #1a1410;
+      --rubrum-parchment: #f5edd8;
+      --rubrum-ink: #2a1f0e;
+      --rubrum-border: #8B6914;
+      --rubrum-muted: #6b5a3e;
+      
+      /* Cores Exclusivas para a Mana/EP */
+      --rubrum-mana: #6B4E9B; 
+      --rubrum-mana-dark: #4A3073;
+    }
+
+    body { background: transparent; font-family: 'Crimson Pro', Georgia, serif; color: var(--rubrum-ink); font-size: 1.05rem; font-weight: 600; }
+
+    .app { max-width: 900px; margin: 0 auto; padding: 1rem; }
+
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+      border-bottom: 2px solid var(--rubrum-gold);
+      margin-bottom: 1.5rem;
+    }
+
+    .header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2rem;
+      color: var(--rubrum-red);
+      letter-spacing: 0.15em;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+    }
+
+    .header p {
+      font-size: 0.95rem;
+      color: var(--rubrum-muted);
+      margin-top: 0.25rem;
+      font-style: italic;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--rubrum-gold);
+    }
+
+    .tab-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      padding: 0.6rem 1.5rem;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--rubrum-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: -2px;
+      font-weight: 600;
+    }
+
+    .tab-btn.active {
+      color: var(--rubrum-red);
+      border-bottom-color: var(--rubrum-red);
+    }
+
+    .tab-btn:hover:not(.active) { color: var(--rubrum-gold); }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .panel {
+      background: rgba(245,237,216,0.15);
+      border: 1px solid var(--rubrum-border);
+      border-radius: 6px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .panel-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+      color: var(--rubrum-gold);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(201,168,76,0.3);
+      font-weight: 700;
+    }
+
+    .level-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 600px) { .level-grid { grid-template-columns: repeat(5, 1fr); } }
+
+    .level-btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      width: 100%;
+      aspect-ratio: 1;
+      border: 1.5px solid var(--rubrum-border);
+      background: none;
+      color: var(--rubrum-muted);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+    }
+
+    .level-btn .lv-pts { font-size: 0.6rem; font-family: 'Inter', sans-serif; font-weight: 600; color: var(--rubrum-muted); opacity: 0.9; }
+
+    .level-btn.selected {
+      background: var(--rubrum-red);
+      border-color: var(--rubrum-red);
+      color: white;
+    }
+
+    .level-btn.selected .lv-pts { color: rgba(255,255,255,0.8); opacity: 1; }
+    .level-btn:hover:not(.selected) { border-color: var(--rubrum-gold); color: var(--rubrum-gold); }
+
+    .points-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(139,26,26,0.08);
+      border: 1px solid rgba(139,26,26,0.3);
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .points-label { font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--rubrum-muted); font-weight: 600; }
+    .points-value { font-family: 'Inter', sans-serif; font-size: 1.4rem; color: var(--rubrum-red); font-weight: 800; }
+    .points-value.negative { color: #c0392b; }
+
+    .attrs-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .attr-box {
+      text-align: center;
+      border: 1px solid var(--rubrum-border);
+      border-radius: 6px;
+      padding: 0.6rem 0.4rem;
+      background: rgba(245,237,216,0.1);
+    }
+
+    .attr-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
+      color: var(--rubrum-gold);
+      margin-bottom: 0.4rem;
+      display: block;
+      font-weight: 700;
+    }
+
+    .attr-label-full { font-size: 0.72rem; color: var(--rubrum-muted); display: block; margin-bottom: 0.3rem; font-weight: 600; }
+
+    .attr-controls { display: flex; align-items: center; justify-content: center; gap: 4px; }
+
+    .attr-btn {
+      width: 22px; height: 22px;
+      border: 1px solid var(--rubrum-border);
+      background: none;
+      color: var(--rubrum-muted);
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      line-height: 1;
+      transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .attr-btn:hover { background: var(--rubrum-gold); color: white; border-color: var(--rubrum-gold); }
+
+    .attr-value {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--rubrum-ink);
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .attr-cost { font-size: 0.72rem; color: var(--rubrum-muted); margin-top: 2px; display: block; font-weight: 600; }
+
+    .secondary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem;
+    }
+
+    .sec-stat {
+      background: rgba(139,105,20,0.08);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 5px;
+      padding: 0.5rem 0.7rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sec-stat-name { font-size: 0.85rem; color: var(--rubrum-muted); font-family: 'Cinzel', serif; letter-spacing: 0.05em; font-weight: 600; }
+    .sec-stat-val { font-family: 'Inter', sans-serif; font-size: 1.15rem; color: var(--rubrum-gold); font-weight: 800; }
+
+    /* Barras de Status Vital (HP e MP) */
+    .hp-bar {
+      background: rgba(139,26,26,0.1);
+      border: 1.5px solid rgba(139,26,26,0.4);
+      border-radius: 6px;
+      padding: 0.7rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.75rem;
+    }
+    .hp-label { font-family: 'Cinzel', serif; font-size: 0.9rem; letter-spacing: 0.1em; color: var(--rubrum-red); font-weight: 700; }
+    .hp-value { font-family: 'Inter', sans-serif; font-size: 2rem; color: var(--rubrum-red); font-weight: 800; }
+
+    .mp-bar {
+      background: rgba(107, 78, 155, 0.08);
+      border: 1px solid rgba(107, 78, 155, 0.35);
+      border-radius: 6px;
+      padding: 0.5rem 1rem; /* Mais fina que a HP */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+    .mp-label { font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.1em; color: var(--rubrum-mana); font-weight: 700; }
+    .mp-value { font-family: 'Inter', sans-serif; font-size: 1.6rem; color: var(--rubrum-mana); font-weight: 800; }
+
+    .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .select-full { grid-column: 1/-1; }
+
+    label.field-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      color: var(--rubrum-gold);
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: 700;
+    }
+
+    select, input[type=text], textarea {
+      width: 100%;
+      background: rgba(245,237,216,0.12);
+      border: 1px solid var(--rubrum-border);
+      border-radius: 5px;
+      color: var(--rubrum-ink);
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 0.45rem 0.7rem;
+      outline: none;
+      transition: border-color 0.15s;
+      appearance: auto;
+    }
+
+    select:focus, input[type=text]:focus, textarea:focus { border-color: var(--rubrum-gold); }
+
+    .doctrine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    .doctrine-select { position: relative; }
+
+    .class-badge {
+      display: inline-block;
+      background: rgba(139,26,26,0.15);
+      border: 1px solid rgba(139,26,26,0.4);
+      border-radius: 4px;
+      padding: 0.2rem 0.6rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      color: var(--rubrum-red);
+      margin-top: 0.4rem;
+    }
+
+    .combined-class {
+      text-align: center;
+      padding: 0.5rem;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.4);
+      border-radius: 5px;
+      margin-top: 0.5rem;
+    }
+
+    .combined-class-name { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--rubrum-gold); }
+
+    .bonus-list { font-size: 0.88rem; color: var(--rubrum-muted); margin-top: 0.3rem; font-weight: 600; }
+    .bonus-pos { color: #2e7d32; }
+    .bonus-neg { color: #c0392b; }
+
+    .generate-btn {
+      width: 100%;
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+      padding: 0.8rem;
+      background: var(--rubrum-red);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 1rem;
+    }
+    .generate-btn:hover { background: #a01f1f; transform: translateY(-1px); }
+    
+    /* Seletor de tipo de dano principal */
+    .dano-type-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+  
+    .dano-type-btn {
+      flex: 1;
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.07em;
+      padding: 0.55rem 0.5rem;
+      border: 1.5px solid var(--rubrum-border);
+      background: none;
+      color: var(--rubrum-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+  
+    .dano-type-btn.selected {
+      background: var(--rubrum-red);
+      border-color: var(--rubrum-red);
+      color: white;
+    }
+  
+    .dano-type-btn:hover:not(.selected) {
+      border-color: var(--rubrum-gold);
+      color: var(--rubrum-gold);
+    }
+  
+    /* Destaque do dano principal na ficha */
+    .stat-row.dano-principal .stat-name {
+      color: var(--rubrum-red);
+      font-weight: 600;
+    }
+    .stat-row.dano-principal .stat-val {
+      color: var(--rubrum-red);
+    }
+    .stat-row.dano-principal::after {
+      content: '★';
+      font-size: 0.6rem;
+      color: var(--rubrum-red);
+      margin-left: 4px;
+      align-self: center;
+    }
+
+    .dano-row { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.75rem; }
+    .dano-row label.field-label { margin-bottom: 0; white-space: nowrap; }
+    .dano-row select { flex: 1; }
+    .dano-formula { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--rubrum-gold); white-space: nowrap; }
+
+    /* ======= FICHA ======= */
+    .sheet { padding: 0.5rem 0; }
+
+    .sheet-header {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 15px;
+      margin-bottom: 1rem;
+      border: 1px solid var(--rubrum-border);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(201,168,76,0.04);
+    }
+
+    .sheet-name-box {
+      border: 1px solid var(--rubrum-border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .sheet-name-label { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rubrum-muted); font-weight: 700; }
+    .sheet-name-input { font-family: 'Cinzel', serif; font-size: 1.3rem; font-weight: 700; background: none; border: none; border-bottom: 1px dashed var(--rubrum-border); color: var(--rubrum-red); outline: none; width: 100%; letter-spacing: 0.06em; padding: 0.1rem 0; }
+    .sheet-title-input { font-family: 'Crimson Pro', serif; font-size: 0.85rem; font-style: italic; background: none; border: none; color: var(--rubrum-muted); outline: none; width: 100%; padding: 0; margin-top: 2px; }
+
+    .sheet-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .sheet-meta-item { border: 1px solid rgba(139,105,20,0.4); border-radius: 5px; padding: 6px 10px; background: rgba(245,237,216,0.08); display: flex; flex-direction: column; gap: 2px; font-family: 'Cinzel', serif; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rubrum-muted); font-weight: 700; }
+    .sheet-meta-item span { font-family: 'Cinzel', serif; font-size: 0.92rem; color: var(--rubrum-gold); font-weight: 700; text-transform: none; letter-spacing: 0.02em; }
+
+    .sheet-grid { display: grid; grid-template-columns: 160px 1fr 1fr; gap: 15px; align-items: start; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 0.28rem 0; border-bottom: 1px solid rgba(201,168,76,0.12); }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-name { color: var(--rubrum-muted); font-size: 0.9rem; font-weight: 600; }
+    .stat-val  { font-family: 'Inter', sans-serif; color: var(--rubrum-gold); font-weight: 700; font-size: 1rem; }
+
+    .sheet-col-left { display: flex; flex-direction: column; gap: 10px; }
+    
+    .sheet-panel { border: 1px solid var(--rubrum-border); border-radius: 6px; overflow: hidden; }
+    .sheet-panel-title { font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rubrum-parchment); background: var(--rubrum-red); padding: 5px 10px; text-align: center; font-weight: 700; }
+    .sheet-panel-body { padding: 10px 12px; }
+
+    .attr-card { border: 1px solid var(--rubrum-border); border-radius: 8px; text-align: center; padding: 6px 4px; background: rgba(245,237,216,0.07); }
+    .attr-card-abbr { font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.1em; color: var(--rubrum-red); text-transform: uppercase; font-weight: 700; }
+    .attr-card-val { font-family: 'Inter', sans-serif; font-size: 1.9rem; font-weight: 800; color: var(--rubrum-ink); line-height: 1.1; display: block; }
+    .attr-card-name { font-size: 0.68rem; color: var(--rubrum-muted); display: block; margin-top: 1px; font-weight: 600; }
+
+    /* HP Badge na Ficha */
+    .hp-sheet { border: 2px solid rgba(139,26,26,0.45); border-radius: 6px; padding: 8px; text-align: center; background: rgba(139,26,26,0.06); }
+    .hp-sheet-val { font-family: 'Inter', sans-serif; font-size: 2.3rem; font-weight: 800; color: var(--rubrum-red); line-height: 1; display: block; }
+    .hp-sheet-label { font-family: 'Cinzel', serif; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rubrum-muted); display: block; margin-top: 3px; font-weight: 700; }
+
+    /* MP Badge na Ficha (Lilás/Lavanda) */
+    .mp-sheet { border: 2px solid rgba(107, 78, 155, 0.4); border-radius: 6px; padding: 6px; text-align: center; background: rgba(107, 78, 155, 0.08); margin-top: -2px; }
+    .mp-sheet-val { font-family: 'Inter', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--rubrum-mana); line-height: 1; display: block; }
+    .mp-sheet-label { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rubrum-muted); display: block; margin-top: 3px; font-weight: 700; }
+
+    .sheet-col-center, .sheet-col-right { display: flex; flex-direction: column; gap: 10px; }
+
+    .weapon-slot { display: flex; align-items: center; gap: 8px; padding: 5px 4px; border-bottom: 1px solid rgba(201,168,76,0.12); }
+    .weapon-slot:last-child { border-bottom: none; }
+    .weapon-slot-num { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--rubrum-muted); min-width: 16px; text-align: center; font-weight: 700; }
+    .weapon-slot input { border: none; background: none; flex: 1; font-family: 'Crimson Pro', serif; font-size: 1rem; font-weight: 600; color: var(--rubrum-ink); outline: none; padding: 0; }
+
+    .item-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px solid rgba(201,168,76,0.1); }
+    .item-row:last-child { border-bottom: none; }
+    .item-row input { flex: 1; border: none; background: none; font-family: 'Crimson Pro', serif; font-size: 1rem; font-weight: 600; color: var(--rubrum-ink); outline: none; padding: 0; }
+
+    .remove-btn { background: none; border: none; color: rgba(139,26,26,0.35); cursor: pointer; font-size: 0.8rem; padding: 0 3px; line-height: 1; transition: color 0.15s; flex-shrink: 0; }
+    .remove-btn:hover { color: var(--rubrum-red); }
+
+    .add-btn { font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.08em; padding: 4px 12px; background: none; border: 1px solid var(--rubrum-border); color: var(--rubrum-muted); border-radius: 4px; cursor: pointer; transition: all 0.15s; margin-top: 6px; display: inline-block; font-weight: 700; }
+    .add-btn:hover { border-color: var(--rubrum-gold); color: var(--rubrum-gold); }
+
+    .skill-card { border: 1px solid rgba(201,168,76,0.25); border-radius: 5px; padding: 6px 10px; margin-bottom: 5px; display: flex; gap: 6px; align-items: flex-start; }
+    .skill-num { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--rubrum-muted); min-width: 18px; padding-top: 3px; font-weight: 700; }
+    .skill-card textarea { border: none; background: none; flex: 1; font-family: 'Crimson Pro', serif; font-size: 1rem; font-weight: 600; color: var(--rubrum-ink); outline: none; resize: none; padding: 0; min-height: 36px; line-height: 1.4; }
+
+    .empty-notice { text-align: center; padding: 2rem; color: var(--rubrum-muted); font-style: italic; font-size: 1rem; font-weight: 600; }
+    .divider { border: none; border-top: 1px solid rgba(201,168,76,0.25); margin: 0.75rem 0; }
+
+    @media print {
+      .tabs, .header, .add-btn, .remove-btn, .generate-btn, #tab-creator { display: none !important; }
+      #tab-sheet { display: block !important; }
+      .section { display: none; }
+      .section.active { display: block; }
+      body { background: white !important; color: black !important; }
+      .app { max-width: 100%; margin: 0; padding: 0; }
+      .sheet-panel, .hp-sheet, .mp-sheet, .sheet-header { page-break-inside: avoid; }
+      input, textarea, select { border: none !important; background: none !important; padding: 0 !important; }
+      .sheet-panel-title { background: #8B1A1A !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <h2 class="sr-only">Criador de Fichas de RPG - Rubrum</h2>
+
+  <div class="app">
+    <div class="header">
+      <h1>RUBRUM</h1>
+      <p>Sistema de Criação de Personagens</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('creator')">Criador de Personagem</button>
+      <button class="tab-btn" onclick="showTab('sheet')">Ficha do Personagem</button>
+    </div>
+
+    <!-- CRIADOR -->
+    <div id="tab-creator" class="section active">
+
+      <!-- NÍVEL -->
+      <div class="panel">
+        <div class="panel-title">Nível do Personagem</div>
+        <div class="level-grid" id="level-grid"></div>
+      </div>
+
+      <!-- PONTOS -->
+      <div class="points-bar">
+        <div>
+          <div class="points-label">Pontos disponíveis</div>
+          <div class="points-value" id="points-display">190</div>
+        </div>
+        <div style="text-align:right">
+          <div class="points-label">Nível selecionado</div>
+          <div style="font-family:'Cinzel',serif;font-size:1rem;color:var(--rubrum-muted)" id="level-display">1</div>
+        </div>
+      </div>
+
+      <!-- ATRIBUTOS BASE -->
+      <div class="panel">
+        <div class="panel-title">Atributos Base</div>
+        <div class="attrs-grid" id="attrs-grid"></div>
+      </div>
+
+      <!-- ATRIBUTOS SECUNDÁRIOS -->
+      <div class="panel">
+        <div class="panel-title">Atributos Secundários, Vida e Mana</div>
+        
+        <!-- Seletor de Tipo de Dano Principal -->
+        <label class="field-label" style="margin-bottom:0.4rem;">Tipo de Dano Principal</label>
+        <div class="dano-type-row">
+          <button class="dano-type-btn selected" id="dano-btn-ST" onclick="selectDanoAttr('ST')">⚔ Físico (ST)</button>
+          <button class="dano-type-btn" id="dano-btn-IT" onclick="selectDanoAttr('IT')">✦ Mágico (IT)</button>
+        </div>
+        
+        <div class="secondary-grid">
+          <div class="sec-stat"><span class="sec-stat-name">Dano Físico (ST)</span><span class="sec-stat-val" id="val-dano-fisico">-</span></div>
+          <div class="sec-stat"><span class="sec-stat-name">Dano Mágico (IT)</span><span class="sec-stat-val" id="val-dano-magico">-</span></div>
+          <div class="sec-stat"><span class="sec-stat-name">Aparar</span><span class="sec-stat-val" id="sec-aparar">5</span></div>
+          <div class="sec-stat"><span class="sec-stat-name">Bloqueio</span><span class="sec-stat-val" id="sec-bloqueio">5</span></div>
+          <div class="sec-stat"><span class="sec-stat-name">Esquiva</span><span class="sec-stat-val" id="sec-esquiva">5</span></div>
+          <div class="sec-stat"><span class="sec-stat-name">Percepção</span><span class="sec-stat-val" id="sec-percepcao">5</span></div>
+          <div class="sec-stat"><span class="sec-stat-name">Vontade</span><span class="sec-stat-val" id="sec-vontade">5</span></div>
+          <div class="sec-stat"><span class="sec-stat-name">Persuasão</span><span class="sec-stat-val" id="sec-persuasao">5</span></div>
+          <div class="sec-stat"><span class="sec-stat-name">Intimidação</span><span class="sec-stat-val" id="sec-intimidacao">5</span></div>
+          <div class="sec-stat"><span class="sec-stat-name">Deslocamento</span><span class="sec-stat-val" id="sec-deslocamento">5m</span></div>
+          <div class="sec-stat"><span class="sec-stat-name">Alcance</span><span class="sec-stat-val" id="sec-range">15m</span></div>
+          <div class="sec-stat"><span class="sec-stat-name">Crit</span><span class="sec-stat-val" id="sec-crit">0</span></div>
+        </div>
+        
+        <div class="hp-bar">
+          <span class="hp-label">Pontos de Vida (HP)</span>
+          <span class="hp-value" id="hp-display">40</span>
+        </div>
+        
+        <div class="mp-bar">
+          <span class="mp-label">Pontos de Mana (MP)</span>
+          <span class="mp-value" id="mp-display">10</span>
+        </div>
+      </div>
+
+      <!-- CLASSE, RAÇA -->
+      <div class="panel">
+        <div class="panel-title">Classe & Raça</div>
+        <div class="select-grid">
+          <div>
+            <label class="field-label">Classe Primária</label>
+            <select id="class-primary" onchange="onClassChange()"></select>
+            <div id="class-primary-bonus" class="bonus-list"></div>
+          </div>
+          <div>
+            <label class="field-label">Raça</label>
+            <select id="race-select" onchange="onRaceChange()"></select>
+            <div id="race-bonus" class="bonus-list"></div>
+          </div>
+
+          <div id="secondary-class-section" style="display:none" class="select-full">
+            <hr class="divider">
+            <label class="field-label">Classe Secundária (Nível 5+)</label>
+            <select id="class-secondary" onchange="onClassChange()"></select>
+            <div id="class-secondary-bonus" class="bonus-list"></div>
+            <div id="combined-class-display" class="combined-class" style="display:none">
+              <div class="combined-class-name" id="combined-class-name"></div>
+              <div style="font-size:0.7rem;color:var(--rubrum-muted);margin-top:2px">Classe Combinada</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOUTRINAS -->
+      <div class="panel">
+        <div class="panel-title">Doutrinas</div>
+        
+        <div id="natural-doctrine-section" style="display:none; margin-bottom: 1rem;">
+          <label class="field-label" style="color: var(--rubrum-red);">Doutrina Natural</label>
+          <div id="natural-doctrine-display" style="font-family: 'Crimson Pro', serif; font-size: 1rem; color: var(--rubrum-ink); background: rgba(139,26,26,0.05); padding: 0.45rem 0.7rem; border: 1px solid rgba(139,26,26,0.3); border-radius: 5px;"></div>
+          <hr class="divider">
+        </div>
+
+        <div class="doctrine-grid" id="doctrine-container">
+          <div>
+            <label class="field-label">Doutrina 1</label>
+            <select class="doctrine-select" onchange="onDoctrineChange(this)"></select>
+          </div>
+          <div>
+            <label class="field-label">Doutrina 2</label>
+            <select class="doctrine-select" onchange="onDoctrineChange(this)"></select>
+          </div>
+        </div>
+        
+        <button class="add-btn" style="margin-top: 10px;" onclick="addDoctrineInput()">+ Adicionar Doutrina Extra</button>
+
+        <div id="doctrine-warning" style="font-size:0.78rem;color:#c0392b;margin-top:0.5rem;display:none">
+          ⚠ A doutrina "Nulo" deve ser escolhida sozinha.
+        </div>
+      </div>
+
+      <!-- NOME -->
+      <div class="panel">
+        <div class="panel-title">Nome do Personagem</div>
+        <input type="text" id="char-name-input" placeholder="Nome do seu personagem..." style="font-size:1.1rem;">
+      </div>
+
+      <button class="generate-btn" onclick="generateSheet()">Gerar Ficha do Personagem →</button>
+    </div>
+
+    <!-- FICHA -->
+    <div id="tab-sheet" class="section">
+      <div id="sheet-empty" class="empty-notice">
+        Crie seu personagem primeiro na aba "Criador de Personagem".
+      </div>
+
+      <div id="sheet-content" style="display:none" class="sheet">
+
+        <!-- Botões de ação -->
+        <div style="display:flex; gap:8px; margin-bottom:0.75rem;">
+          <button class="generate-btn" style="flex:1; background:var(--rubrum-dark); font-size: 0.8rem;" onclick="imprimirFicha()">🖨️ Imprimir / PDF</button>
+          <button class="generate-btn" style="flex:1; background:var(--rubrum-red); font-size: 0.8rem;" onclick="salvarFichaHTML()">📄 Salvar .HTML</button>
+          <button class="generate-btn" style="flex:1; background:#2c3e50; font-size: 0.8rem;" onclick="salvarFichaJSON()">💾 Salvar .JSON</button>
+        </div>
+
+        <!-- CABEÇALHO: nome à esquerda, meta-grid à direita -->
+        <div class="sheet-header">
+          <div class="sheet-name-box">
+            <span class="sheet-name-label">Nome do Personagem</span>
+            <input class="sheet-name-input" id="sheet-name" type="text" placeholder="Nome do Personagem">
+            <input class="sheet-title-input" id="sheet-title" type="text" placeholder="Título / Epíteto...">
+          </div>
+          <div class="sheet-meta" id="sheet-meta"></div>
+        </div>
+
+        <!-- GRADE 3 COLUNAS -->
+        <div class="sheet-grid">
+          <!-- COL 1: atributos primários + HP + danos -->
+          <div class="sheet-col-left">
+            <div class="sheet-panel">
+              <div class="sheet-panel-title">Atributos</div>
+              <div class="sheet-panel-body" style="display:flex; flex-direction:column; gap:6px;">
+                <div id="sheet-attrs"></div>
+              </div>
+            </div>
+            
+            <div class="hp-sheet">
+              <span class="hp-sheet-val" id="sheet-hp">—</span>
+              <span class="hp-sheet-label">Pontos de Vida</span>
+            </div>
+            <div class="mp-sheet">
+              <span class="mp-sheet-val" id="sheet-mp">—</span>
+              <span class="mp-sheet-label">Pontos de Mana</span>
+            </div>
+          </div>
+
+          <!-- COL 2: secundários + armas -->
+          <div class="sheet-col-center">
+            <div class="sheet-panel">
+              <div class="sheet-panel-title">Atributos Secundários</div>
+              <div class="sheet-panel-body">
+                <div id="sheet-secondary"></div>
+              </div>
+            </div>
+            <div class="sheet-panel">
+              <div class="sheet-panel-title">Armas Equipadas</div>
+              <div class="sheet-panel-body">
+                <div id="weapon-slots"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COL 3: itens + habilidades -->
+          <div class="sheet-col-right">
+            <div class="sheet-panel">
+              <div class="sheet-panel-title">Mochila / Itens</div>
+              <div class="sheet-panel-body">
+                <div id="item-list"></div>
+                <button class="add-btn" onclick="addItem()">+ Adicionar Item</button>
+              </div>
+            </div>
+            <div class="sheet-panel">
+              <div class="sheet-panel-title" style="display:flex; justify-content:space-between; align-items:center; padding-right:10px;">
+                <span>Habilidades</span>
+                <button class="add-btn" style="margin-top:0;" onclick="addSkill()">+ Habilidade</button>
+              </div>
+              <div class="sheet-panel-body">
+                <div id="skill-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const LEVELS = [
+  { pts: 190, hp: 4, label: '190pts', info: '2 Hab · HP×4' },
+  { pts: 250, hp: 4, label: '250pts', info: '1 Hab · HP×4' },
+  { pts: 310, hp: 5, label: '310pts', info: '1 Hab · HP×5' },
+  { pts: 430, hp: 7, label: '430pts', info: '1 Hab · HP×7' },
+  { pts: 500, hp: 10, label: '500pts', info: '2 Hab · HP×10' },
+  { pts: 500, hp: 30, label: 'Mult×2', info: 'HP×30' },
+  { pts: 500, hp: 50, label: 'Mult×3', info: 'HP×50' },
+  { pts: 500, hp: 100, label: 'Mult×4', info: '1 Hab · HP×100' },
+  { pts: 500, hp: 150, label: 'Mult×5', info: 'HP×150' },
+  { pts: 500, hp: 200, label: 'Mult×10', info: 'Sup · HP×200' },
+];
+
+const LEVEL_NAMES = {
+  1: "Herói Bronze", 2: "Herói Prata", 3: "Herói Ouro", 4: "Campeão", 5: "Mestre",
+  6: "Conquistador", 7: "Dominador", 8: "Soberano", 9: "Grão-Mestre", 10: "Lenda"
+};
+
+const SKILLS_BY_LEVEL = [2,3,4,5,6,6,6,7,7,8];
+const ATTR_COST = { 1:-80,2:-70,3:-60,4:-50,5:-40,6:-30,7:-20,8:-15,9:-10,10:0,11:10,12:20,13:30,14:45,15:60,16:80,17:100,18:125,19:150,20:175 };
+const ATTRS = ['ST','DX','IT','CH','HT'];
+const ATTR_NAMES = { ST:'Força', DX:'Destreza', IT:'Inteligência', CH:'Carisma', HT:'Vitalidade' };
+
+const CLASSES = ['Artífice','Artista Marcial','Atirador','Domador','Espadachim','Ladrão','Mágico','Mestre de Armas','Palavro','Sobrevivente','Trovador','Xamã'];
+
+const CLASS_BONUS = {
+  'Artífice': { mods: { IT:3, ST:-2 }, extra: {} },
+  'Artista Marcial': { mods: { DX:1, IT:-1 }, extra: { esquiva:1 } },
+  'Atirador': { mods: { DX:2, ST:-1 }, extra: { range:'x2' } },
+  'Domador': { mods: { DX:2, HT:-1 }, extra: {} },
+  'Espadachim': { mods: { DX:1, ST:1, HT:-1 }, extra: { crit:2 } },
+  'Ladrão': { mods: { DX:2, HT:-1 }, extra: { esquiva:1 } },
+  'Mágico': { mods: { IT:3, ST:-2 }, extra: {} },
+  'Mestre de Armas': { mods: { ST:1, DX:-1 }, extra: { bloqueio:2 } },
+  'Palavro': { mods: { IT:2, DX:-1 }, extra: {} },
+  'Sobrevivente': { mods: { HT:-1 }, extra: { esquiva:3 } },
+  'Trovador': { mods: { IT:1, CH:1, ST:-1 }, extra: {} },
+  'Xamã': { mods: { IT:1, HT:1, DX:-1 }, extra: {} },
+};
+
+const RACES = ['Anjo','Anticorpo','Astraniano','Biliano','Celta','Cósmico','Escamoflora','Fízio','Flamestríaco','Furtivo','Gotho','Humano Essencial','Humano Resgatado','Humano Vita','Montanhoso','Ogro','Ogro Transmorfo','Star','Tamoriano','Teraníaco','Zequiniano'];
+
+const RACE_BONUS = {
+  'Anjo': { mods: { DX:1, HT:1, ST:-1, CH:-1 }, extra: {} },
+  'Anticorpo': { mods: { ST:1, IT:1 , HT:-2 }, extra: {} },
+  'Astraniano': { mods: { ST:1, IT:1, DX:-1, CH:-1 }, extra: {} },
+  'Biliano': { mods: { IT:1, HT:1, ST:-1, DX:-1 }, extra: {} },
+  'Celta': { mods: { IT:2, HT:1, ST:-2, CH:-1 }, extra: {} },
+  'Cósmico': { mods: { IT:1, HT:1, ST:-1, DX:-1 }, extra: {} },
+  'Escamoflora': { mods: { DX:2, IT:1, ST:-2, CH:-1 }, extra: {} },
+  'Fízio': { mods: { DX:1, HT:2, IT:-1, CH:-2 }, extra: {} },
+  'Flamestríaco': { mods: { ST:1, HT:1, DX:-1, CH:-1 }, extra: {} },
+  'Furtivo': { mods: { DX:2, CH:1, ST:-2, HT:-1 }, extra: {} },
+  'Gotho': { mods: { ST:2, HT:1, DX:-1, CH:-2 }, extra: {} },
+  'Humano Essencial': { mods: { IT:1, CH:1, ST:-2 }, extra: {} },
+  'Humano Resgatado': { mods: { ST:1, HT:1, DX:-1, CH:-1 }, extra: {} },
+  'Humano Vita': { mods: { IT:2, DX:-1, HT:-1 }, extra: {} },
+  'Montanhoso': { mods: { ST:1, HT:1, DX:-1, IT:-1 }, extra: {} },
+  'Ogro': { mods: { HT:1, CH:1, DX:-2 }, extra: {} },
+  'Ogro Transmorfo': { mods: { ST:1, DX:1, HT:1, CH:-3 }, extra: {} },
+  'Star': { mods: { ST:1, DX:1, HT:1, IT:-2, CH:-1 }, extra: {} },
+  'Tamoriano': { mods: { IT:2, HT:1, ST:-1, DX:-2 }, extra: {} },
+  'Teraníaco': { mods: { ST:1, HT:1, DX:-1, IT:-1 }, extra: {} },
+  'Zequiniano': { mods: { DX:1, CH:1, ST:-1, HT:-1 }, extra: {} }
+};
+
+const DOCTRINES_ALL = ['Absorver','Água','Amor','Animalismo','Artes','Barreira','Borracha','Clarividência','Clima','Devorar','Diamante','Dividir','Eletricidade','Espelhos','Explosão','Fogo','Gelo','Gosma','Gravidade','Intangibilidade','Invisibilidade','Karma','Luz','Magia Arcana','Magma','Magnetismo','Manipulação','Manipulação de Espaços','Manipulação de Formas','Manipulação de Tamanhos','Manipulação de Temperatura (Calor)','Materializar','Metal','Micro Dimensões','Multiplicar','Nulo','Planta','Poder Criador','Profano','Radiação','Sangue','Som','Sonho','Sorte','Super Força','Super Inteligência','Super Sentidos','Super Velocidade','Tectonismo','Telecinese','Teleporte','Tempo','Terra','Trevas','Transmutação','Vácuo','Veneno','Vento'];
+
+const RACE_NATURAL_DOCTRINE = {
+  'Biliano': 'Água', 'Escamoflora': 'Planta', 'Fízio': 'Profano', 'Flamestríaco': 'Fogo',
+  'Gotho': 'Super Sentidos', 'Star': 'Star', 'Teraníaco': 'Gelo', 'Zequiniano': 'Zequiniano'
+};
+
+const COMBINATIONS = {
+  'Artífice+Artista Marcial':'Monge Alquímico','Artífice+Atirador':'Bombardeiro','Artífice+Domador':'Artesão Feroz','Artífice+Espadachim':'Lâmina Química','Artífice+Ladrão':'Sabotador Mecânico','Artífice+Mágico':'Engenheiro Arcano','Artífice+Mestre de Armas':'Armeiro Supremo','Artífice+Palavro':'Inventor Orador','Artífice+Sobrevivente':'Inventor Arisco','Artífice+Trovador':'Artista Engenhoso','Artífice+Xamã':'Tecelão Espiritual',
+  'Artista Marcial+Atirador':'Punho-bala','Artista Marcial+Domador':'Pata-veloz','Artista Marcial+Espadachim':'Lâmina Monge','Artista Marcial+Ladrão':'Punho Sombrio','Artista Marcial+Mágico':'Monge Arcano','Artista Marcial+Mestre de Armas':'Grão Combatente','Artista Marcial+Palavro':'Monge Lírico','Artista Marcial+Sobrevivente':'Punho Selvagem','Artista Marcial+Trovador':'Dançarino de Combate','Artista Marcial+Xamã':'Punho Espiritual',
+  'Atirador+Domador':'Caçador','Atirador+Espadachim':'Duelista','Atirador+Ladrão':'Trapaceiro Distante','Atirador+Mágico':'Arqueiro Mágico','Atirador+Mestre de Armas':'Atirador Supremo','Atirador+Palavro':'Sentinela','Atirador+Sobrevivente':'Rastreador','Atirador+Trovador':'Pólvora Sônica','Atirador+Xamã':'Arqueiro Espiritual',
+  'Domador+Espadachim':'Presa Afiada','Domador+Ladrão':'Predador Silencioso','Domador+Mágico':'Invocador Bestial','Domador+Mestre de Armas':'Mestre das Feras','Domador+Palavro':'Sábio Bestial','Domador+Sobrevivente':'Ranger','Domador+Trovador':'Voz das Feras','Domador+Xamã':'Guardião das Feras',
+  'Espadachim+Ladrão':'Corte Sombrio','Espadachim+Mágico':'Lâmina Arcana','Espadachim+Mestre de Armas':'General da Lâmina','Espadachim+Palavro':'Campeão Lírico','Espadachim+Sobrevivente':'Espada Errante','Espadachim+Trovador':'Voz da Espada','Espadachim+Xamã':'Lâmina Espiritual',
+  'Ladrão+Mágico':'Trapaceiro Arcano','Ladrão+Mestre de Armas':'Assassino Supremo','Ladrão+Palavro':'Sussurrador Profano','Ladrão+Sobrevivente':'Rastejador','Ladrão+Trovador':'Voz da Trapaça','Ladrão+Xamã':'Andarilho das Sombras',
+  'Mágico+Mestre de Armas':'Mago Bélico','Mágico+Palavro':'Escriba Arcano','Mágico+Sobrevivente':'Errante Arcano','Mágico+Trovador':'Encantador Arcano','Mágico+Xamã':'Oráculo Primordial',
+  'Mestre de Armas+Palavro':'Comandante Sábio','Mestre de Armas+Sobrevivente':'Veterano de Guerra','Mestre de Armas+Trovador':'General Sonoro','Mestre de Armas+Xamã':'Campeão dos Espíritos',
+  'Palavro+Sobrevivente':'Pregador Errante','Palavro+Trovador':'Arauto Inspirador','Palavro+Xamã':'Voz Ancestral',
+  'Sobrevivente+Trovador':'Andarilho Cantante','Sobrevivente+Xamã':'Guardião Ancestral',
+  'Trovador+Xamã':'Cantor Espiritual',
+  'Artífice+Artífice':'Arquiteto Supremo','Artista Marcial+Artista Marcial':'Grão Monge','Atirador+Atirador':'Franco-Atirador','Domador+Domador':'Soberano das Feras','Espadachim+Espadachim':'Mestre da Lâmina','Ladrão+Ladrão':'Senhor das Sombras','Mágico+Mágico':'Arquimago','Mestre de Armas+Mestre de Armas':'Senhor da Guerra','Palavro+Palavro':'Voz Absoluta','Sobrevivente+Sobrevivente':'Indomável','Trovador+Trovador':'Bardo','Xamã+Xamã':'Espírito Ancestral'
+};
+
+let state = {
+  level: 1, attrs: { ST:10, DX:10, IT:10, HT:10, CH:10 }, danoAttr: 'ST',
+  classPrimary: 'Artífice', classSecondary: 'Artífice', race: 'Humano Essencial',
+  doctrine1: 'Fogo', doctrine2: 'Água', charName: '',
+};
+
+function getBasePoints(level) { return LEVELS[level-1].pts; }
+
+function attrCostSum() { return ATTRS.reduce((s, a) => s + (ATTR_COST[state.attrs[a]] || 0), 0); }
+function remainingPoints() { return getBasePoints(state.level) - attrCostSum(); }
+
+function getEffectiveAttrs() {
+  const base = { ...state.attrs };
+  const applyBonus = (key, bonusDict) => {
+    if (!bonusDict[key]) return;
+    const { mods } = bonusDict[key];
+    for (const k in mods) if (ATTRS.includes(k)) base[k] = (base[k]||10) + mods[k];
+  };
+  applyBonus(state.classPrimary, CLASS_BONUS);
+  if (state.level >= 5) applyBonus(state.classSecondary, CLASS_BONUS);
+  applyBonus(state.race, RACE_BONUS); 
+  return base;
+}
+
+function getExtraStats() {
+  let esquivaBonus = 0, bloqueioBonus = 0, critBonus = 0, rangeDouble = false;
+  const applyExtra = (key, bonusDict) => {
+    if (!bonusDict[key]) return;
+    const { extra } = bonusDict[key];
+    if (extra.esquiva) esquivaBonus += extra.esquiva;
+    if (extra.bloqueio) bloqueioBonus += extra.bloqueio;
+    if (extra.crit) critBonus += extra.crit;
+    if (extra.range === 'x2') rangeDouble = true;
+  };
+  applyExtra(state.classPrimary, CLASS_BONUS);
+  if (state.level >= 5) applyExtra(state.classSecondary, CLASS_BONUS);
+  applyExtra(state.race, RACE_BONUS); 
+  return { esquivaBonus, bloqueioBonus, critBonus, rangeDouble };
+}
+
+function calcSecondary(eff, extra) {
+  const aparar = Math.round((eff.ST + eff.DX) / 4);
+  const esquiva = Math.round(eff.DX / 2) + extra.esquivaBonus;
+  const bloqueio = Math.round((eff.ST + eff.HT) / 4) + extra.bloqueioBonus;
+  const percepcao = Math.round((eff.IT + eff.DX) / 4);
+  const vontade = Math.round((eff.IT + eff.CH) / 4);
+  const persuasao = Math.round((eff.CH + eff.DX) / 4);
+  const intimidacao = Math.round((eff.ST + eff.CH) / 4);
+  const deslocamento = esquiva;
+  let range = deslocamento * 3;
+  if (extra.rangeDouble) range *= 2;
+  const crit = extra.critBonus;
+  const hpMult = LEVELS[state.level-1].hp;
+  const hp = eff.HT * hpMult;
+  const mp = eff.HT; // MP Igual ao HT, conf. solicitado
+  return { aparar, esquiva, bloqueio, percepcao, vontade, persuasao, intimidacao, deslocamento, range, crit, hp, mp };
+}
+
+const DAMAGE_MULT = [1,1,1,1,1,2,3,4,5,10];
+function getDamageMult() { return DAMAGE_MULT[state.level - 1] || 1; }
+
+// --- CORREÇÃO: Lógica para calcular a base de dados ---
+function getBaseDiceCount(val) {
+  if (val <= 4) return 0;
+  if (val >= 5 && val <= 9) return 1;
+  if (val >= 10 && val <= 14) return 2;
+  if (val >= 15 && val <= 19) return 3;
+  return 4;
+}
+
+// --- CORREÇÃO: Retornada a lógica escalar do v4 + multiplicador do v4(3) ---
+function getScaledDamage(val) {
+  if (val <= 4) return "0 (Incapaz)";
+
+  let dice = "2D6";
+  if (val >= 5 && val <= 9) dice = "1D6";
+  else if (val >= 10 && val <= 14) dice = "2D6";
+  else if (val >= 15 && val <= 19) dice = "3D6";
+  else if (val >= 20) dice = "4D6";
+
+  const base = val - 10;
+  const mult = getDamageMult();
+  const sign = base >= 0 ? '+' : '';
+
+  if (mult === 1) return `${sign}${base} + ${dice}`;
+  else return `${sign}${base} + ${dice} (×${mult})`;
+}
+
+function recalcSecondary() {
+  const eff = getEffectiveAttrs();
+  const extra = getExtraStats();
+  const sec = calcSecondary(eff, extra);
+
+  document.getElementById('sec-aparar').textContent = sec.aparar;
+  document.getElementById('sec-esquiva').textContent = sec.esquiva;
+  document.getElementById('sec-bloqueio').textContent = sec.bloqueio;
+  document.getElementById('sec-percepcao').textContent = sec.percepcao;
+  document.getElementById('sec-vontade').textContent = sec.vontade;
+  document.getElementById('sec-persuasao').textContent = sec.persuasao;
+  document.getElementById('sec-intimidacao').textContent = sec.intimidacao;
+  document.getElementById('sec-deslocamento').textContent = sec.deslocamento + 'm';
+  document.getElementById('sec-range').textContent = sec.range + 'm';
+  document.getElementById('sec-crit').textContent = sec.crit;
+  document.getElementById('hp-display').textContent = sec.hp;
+  document.getElementById('mp-display').textContent = sec.mp;
+
+  document.getElementById('val-dano-fisico').textContent = getScaledDamage(eff.ST);
+  document.getElementById('val-dano-magico').textContent = getScaledDamage(eff.IT);
+
+  updatePointsDisplay();
+  updateAttrDisplay();
+}
+
+function updatePointsDisplay() {
+  const rem = remainingPoints();
+  const el = document.getElementById('points-display');
+  el.textContent = rem;
+  el.className = 'points-value' + (rem < 0 ? ' negative' : '');
+}
+
+function updateAttrDisplay() {
+  const eff = getEffectiveAttrs();
+  ATTRS.forEach(a => {
+    const base = state.attrs[a];
+    const effV = eff[a];
+    const diff = effV - base;
+    const cost = ATTR_COST[base];
+
+    const costEl = document.getElementById('attr-cost-' + a);
+    if (costEl) costEl.textContent = cost >= 0 ? '+' + cost + ' pts' : cost + ' pts';
+
+    const valEl = document.getElementById('attr-val-' + a);
+    if (valEl) valEl.textContent = effV;
+
+    const tagEl = document.getElementById('attr-bonus-' + a);
+    if (tagEl) {
+      if (diff !== 0) {
+        const sign = diff > 0 ? '+' : '';
+        tagEl.textContent = `${sign}${diff} classe/raça`;
+        tagEl.style.display = 'inline-block';
+        tagEl.style.background = diff > 0 ? 'rgba(29,122,80,0.12)' : 'rgba(192,57,43,0.12)';
+        tagEl.style.color = diff > 0 ? '#1D7A50' : '#c0392b';
+        tagEl.style.border = `1px solid ${diff > 0 ? 'rgba(29,122,80,0.3)' : 'rgba(192,57,43,0.3)'}`;
+      } else {
+        tagEl.style.display = 'none';
+      }
+    }
+  });
+}
+
+// Função para selecionar o tipo de dano principal (ST=Físico ou IT=Mágico)
+function selectDanoAttr(attr) {
+  state.danoAttr = attr;
+  document.getElementById('dano-btn-ST').className = 'dano-type-btn' + (attr === 'ST' ? ' selected' : '');
+  document.getElementById('dano-btn-IT').className = 'dano-type-btn' + (attr === 'IT' ? ' selected' : '');
+}
+
+function buildLevelGrid() {
+  const grid = document.getElementById('level-grid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'level-btn' + (i === state.level ? ' selected' : '');
+    btn.innerHTML = i + '<span class="lv-pts">' + LEVELS[i-1].label + '</span>';
+    btn.onclick = () => selectLevel(i);
+    grid.appendChild(btn);
+  }
+}
+
+function selectLevel(lv) {
+  state.level = lv;
+  document.getElementById('level-display').textContent = lv;
+  buildLevelGrid();
+  const secSection = document.getElementById('secondary-class-section');
+  secSection.style.display = lv >= 5 ? 'block' : 'none';
+  recalcSecondary();
+  onClassChange();
+}
+
+function buildAttrsGrid() {
+  const grid = document.getElementById('attrs-grid');
+  grid.innerHTML = '';
+  ATTRS.forEach(a => {
+    const box = document.createElement('div');
+    box.className = 'attr-box';
+    box.innerHTML = `
+      <span class="attr-label">${a}</span>
+      <span class="attr-label-full">${ATTR_NAMES[a]}</span>
+      <div class="attr-controls">
+        <button class="attr-btn" onclick="changeAttr('${a}',-1)">−</button>
+        <span class="attr-value" id="attr-val-${a}">${state.attrs[a]}</span>
+        <button class="attr-btn" onclick="changeAttr('${a}',1)">+</button>
+      </div>
+      <span class="attr-cost" id="attr-cost-${a}">0 pts</span>
+      <span class="attr-bonus-tag" id="attr-bonus-${a}" style="display:none;font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:800;margin-top:3px;border-radius:3px;padding:1px 6px"></span>
+    `;
+    grid.appendChild(box);
+  });
+}
+
+function changeAttr(attr, delta) {
+  const newVal = state.attrs[attr] + delta;
+  if (newVal < 1 || newVal > 20) return;
+  const newCost = ATTR_COST[newVal] - ATTR_COST[state.attrs[attr]];
+  if (newCost > 0 && remainingPoints() < newCost) return;
+  state.attrs[attr] = newVal;
+  recalcSecondary();
+}
+
+function buildClassSelects() {
+  const p = document.getElementById('class-primary');
+  const s = document.getElementById('class-secondary');
+  p.innerHTML = ''; s.innerHTML = '';
+  CLASSES.forEach(c => {
+    p.innerHTML += `<option value="${c}">${c}</option>`;
+    s.innerHTML += `<option value="${c}">${c}</option>`;
+  });
+  p.value = state.classPrimary;
+  s.value = state.classSecondary;
+}
+
+function buildRaceSelect() {
+  const r = document.getElementById('race-select');
+  r.innerHTML = '';
+  RACES.forEach(race => r.innerHTML += `<option value="${race}">${race}</option>`);
+  r.value = state.race;
+}
+
+function bonusText(key, bonusDict) {
+  if (!bonusDict[key]) return '';
+  const { mods, extra } = bonusDict[key];
+  let parts = [];
+  for (const k in mods) parts.push(`<span class="${mods[k]>0?'bonus-pos':'bonus-neg'}">${mods[k]>0?'+':''}${mods[k]} ${k}</span>`);
+  for (const k in extra) {
+    if (extra[k] === 'x2') parts.push(`<span class="bonus-pos">Range ×2</span>`);
+    else parts.push(`<span class="bonus-pos">+${extra[k]} ${k}</span>`);
+  }
+  return parts.join(' · ');
+}
+
+function onClassChange() {
+  state.classPrimary = document.getElementById('class-primary').value;
+  state.classSecondary = document.getElementById('class-secondary').value;
+  document.getElementById('class-primary-bonus').innerHTML = bonusText(state.classPrimary, CLASS_BONUS);
+
+  if (state.level >= 5) {
+    document.getElementById('class-secondary-bonus').innerHTML = bonusText(state.classSecondary, CLASS_BONUS);
+    const key1 = state.classPrimary + '+' + state.classSecondary;
+    const key2 = state.classSecondary + '+' + state.classPrimary;
+    const combined = COMBINATIONS[key1] || COMBINATIONS[key2] || null;
+    const disp = document.getElementById('combined-class-display');
+    if (combined) {
+      document.getElementById('combined-class-name').textContent = combined;
+      disp.style.display = 'block';
+    } else {
+      disp.style.display = 'none';
+    }
+  }
+  
+  updateAllDoctrineSelects(); 
+  recalcSecondary();
+}
+
+function onRaceChange() {
+  state.race = document.getElementById('race-select').value;
+  document.getElementById('race-bonus').innerHTML = bonusText(state.race, RACE_BONUS);
+  
+  const natural = RACE_NATURAL_DOCTRINE[state.race];
+  const natSection = document.getElementById('natural-doctrine-section');
+  if (natural) {
+    document.getElementById('natural-doctrine-display').textContent = natural;
+    natSection.style.display = 'block';
+  } else {
+    natSection.style.display = 'none';
+  }
+  
+  updateAllDoctrineSelects(); 
+  recalcSecondary();
+}
+
+function getAvailableDoctrines() {
+  let available = [...DOCTRINES_ALL];
+  const natural = RACE_NATURAL_DOCTRINE[state.race];
+  if (natural) available = available.filter(d => d !== natural);
+
+  const isMagico = state.classPrimary === 'Mágico' || (state.level >= 5 && state.classSecondary === 'Mágico');
+  if (!isMagico) available = available.filter(d => d !== 'Magia Arcana');
+
+  return available;
+}
+
+function populateDoctrineSelect(selectElement, currentValue) {
+  const available = getAvailableDoctrines();
+  selectElement.innerHTML = '';
+  
+  available.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = d;
+    selectElement.appendChild(opt);
+  });
+  
+  if (currentValue && available.includes(currentValue)) {
+    selectElement.value = currentValue;
+  } else {
+    const firstValid = available.find(d => d !== 'Nulo');
+    selectElement.value = firstValid || 'Nulo'; 
+  }
+}
+
+function updateAllDoctrineSelects() {
+  const selects = document.querySelectorAll('.doctrine-select');
+  selects.forEach(sel => populateDoctrineSelect(sel, sel.value));
+  onDoctrineChange();
+}
+
+function buildDoctrineSelects() {
+  const selects = document.querySelectorAll('.doctrine-select');
+  selects.forEach((sel, index) => {
+    const defaultVal = index === 0 ? 'Fogo' : 'Água';
+    populateDoctrineSelect(sel, defaultVal);
+  });
+}
+
+function addDoctrineInput() {
+  const container = document.getElementById('doctrine-container');
+  const count = container.querySelectorAll('.doctrine-select').length + 1;
+  const div = document.createElement('div');
+  
+  div.innerHTML = `
+    <label class="field-label" style="display:flex; justify-content:space-between;">
+      Doutrina ${count} 
+      <span style="color:var(--rubrum-red); cursor:pointer;" onclick="this.parentElement.parentElement.remove(); onDoctrineChange();">×</span>
+    </label>
+    <select class="doctrine-select" onchange="onDoctrineChange(this)"></select>
+  `;
+  container.appendChild(div);
+  
+  const selectNode = div.querySelector('select');
+  populateDoctrineSelect(selectNode, null); 
+  onDoctrineChange(selectNode);
+}
+
+function onDoctrineChange(changedElement) {
+  const selects = document.querySelectorAll('.doctrine-select');
+  const warn = document.getElementById('doctrine-warning');
+  
+  if (changedElement) {
+    if (changedElement.value === 'Nulo') {
+      selects.forEach(sel => sel.value = 'Nulo');
+      warn.style.display = 'block';
+    } else {
+      const available = getAvailableDoctrines();
+      const defaultDoc = available.find(d => d !== 'Nulo') || 'Nulo';
+      
+      selects.forEach(sel => {
+        if (sel !== changedElement && sel.value === 'Nulo') {
+          sel.value = defaultDoc;
+        }
+      });
+      warn.style.display = 'none';
+    }
+  } else {
+    let hasNulo = false;
+    selects.forEach(sel => { if (sel.value === 'Nulo') hasNulo = true; });
+
+    if (hasNulo) {
+      selects.forEach(sel => sel.value = 'Nulo');
+      warn.style.display = 'block';
+    } else {
+      warn.style.display = 'none';
+    }
+  }
+}
+
+function generateSheet() {
+  const rem = remainingPoints();
+  if (rem < 0) { alert('Você gastou mais pontos do que possui! Redistribua seus atributos.'); return; }
+
+  const name = document.getElementById('char-name-input').value || 'Sem nome';
+  const race = document.getElementById('race-select').value;
+  const classPrimary = document.getElementById('class-primary').value;
+  const classSecondary = state.level >= 5 ? document.getElementById('class-secondary').value : null;
+  const selects = document.querySelectorAll('.doctrine-select');
+  let doctrinesHTML = '';
+  
+  const natural = RACE_NATURAL_DOCTRINE[state.race];
+  if (natural) {
+    doctrinesHTML += `<div class="sheet-meta-item">Doutrina Natural <span style="color:var(--rubrum-red)">${natural}</span></div>`;
+  }
+
+  selects.forEach((sel, index) => {
+    doctrinesHTML += `<div class="sheet-meta-item">Doutrina <span>${sel.value}</span></div>`;
+  });
+
+  const key1 = classPrimary + '+' + classSecondary;
+  const key2 = classSecondary + '+' + classPrimary;
+  const combinedClass = classSecondary ? (COMBINATIONS[key1] || COMBINATIONS[key2] || classPrimary + ' / ' + classSecondary) : classPrimary;
+
+  const eff = getEffectiveAttrs();
+  const extra = getExtraStats();
+  const sec = calcSecondary(eff, extra);
+
+  document.getElementById('sheet-name').value = name;
+  document.getElementById('sheet-title').value = '';
+
+  const meta = document.getElementById('sheet-meta');
+  meta.innerHTML = `
+    <div class="sheet-meta-item">Nível <span>${state.level} (${LEVEL_NAMES[state.level]})</span></div>
+    <div class="sheet-meta-item">Raça <span>${race}</span></div>
+    <div class="sheet-meta-item">Classe <span>${combinedClass}</span></div>
+    ${doctrinesHTML}
+  `;
+
+  const attrsEl = document.getElementById('sheet-attrs');
+  attrsEl.innerHTML = ATTRS.map(a =>
+    `<div class="attr-card">
+      <span class="attr-card-abbr">${a}</span>
+      <span class="attr-card-val">${eff[a]}</span>
+      <span class="attr-card-name">${ATTR_NAMES[a]}</span>
+    </div>`
+  ).join('') +
+  `<div class="stat-row" style="margin-top:8px; padding-top:6px; border-top:1px solid rgba(201,168,76,0.2);">
+    <span class="stat-name">Dano Físico</span><span class="stat-val">${getScaledDamage(eff.ST)}</span>
+  </div>
+  <div class="stat-row">
+    <span class="stat-name">Dano Mágico</span><span class="stat-val">${getScaledDamage(eff.IT)}</span>
+  </div>`;
+
+  const secEl = document.getElementById('sheet-secondary');
+  secEl.innerHTML = [
+    ['Aparar', sec.aparar],
+    ['Bloqueio', sec.bloqueio],
+    ['Esquiva', sec.esquiva],
+    ['Percepção', sec.percepcao],
+    ['Vontade', sec.vontade],
+    ['Persuasão', sec.persuasao],
+    ['Intimidação', sec.intimidacao],
+    ['Deslocamento', sec.deslocamento + 'm'],
+    ['Alcance', sec.range + 'm'],
+    ['Crit', sec.crit],
+  ].map(([n,v]) => `<div class="stat-row"><span class="stat-name">${n}</span><span class="stat-val">${v}</span></div>`).join('');
+
+  document.getElementById('sheet-hp').textContent = sec.hp;
+  document.getElementById('sheet-mp').textContent = sec.mp;
+
+  const weaponSlots = document.getElementById('weapon-slots');
+  const maxWeapons = classPrimary === 'Mestre de Armas' || classSecondary === 'Mestre de Armas' ? 6 : 4;
+  weaponSlots.innerHTML = '';
+  for (let i = 1; i <= maxWeapons; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'weapon-slot';
+    slot.innerHTML = `<span class="weapon-slot-num">${i}</span><input type="text" placeholder="Arma ${i}...">`;
+    weaponSlots.appendChild(slot);
+  }
+
+  const itemList = document.getElementById('item-list');
+  itemList.innerHTML = '';
+  addItem();
+
+  const skillList = document.getElementById('skill-list');
+  skillList.innerHTML = '';
+  const numSkills = SKILLS_BY_LEVEL[state.level - 1];
+  for (let i = 1; i <= numSkills; i++) addSkill(i === numSkills && state.level === 10 ? '★ Habilidade Suprema' : '');
+
+  document.getElementById('sheet-empty').style.display = 'none';
+  document.getElementById('sheet-content').style.display = 'block';
+  showTab('sheet');
+}
+
+function addItem() {
+  const list = document.getElementById('item-list');
+  const row = document.createElement('div');
+  row.className = 'item-row';
+  row.innerHTML = `<i class="ti ti-package" aria-hidden="true" style="font-size:14px;color:var(--rubrum-muted);flex-shrink:0"></i><input type="text" placeholder="Item..."><button class="remove-btn" onclick="this.parentElement.remove()">×</button>`;
+  list.appendChild(row);
+}
+
+let skillCount = 0;
+function addSkill(placeholder) {
+  skillCount++;
+  const list = document.getElementById('skill-list');
+  const card = document.createElement('div');
+  card.className = 'skill-card';
+  card.style.flexDirection = 'column';
+  card.style.gap = '6px';
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;gap:6px;">
+      <span class="skill-num">${skillCount}</span>
+      <textarea rows="2" placeholder="${placeholder || 'Descreva a habilidade...'}" 
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+        style="flex:1;border:none;background:none;font-family:'Crimson Pro',serif;font-size:1rem;font-weight:600;color:var(--rubrum-ink);outline:none;resize:none;padding:0;min-height:36px;line-height:1.4"></textarea>
+      <button class="remove-btn" onclick="this.closest('.skill-card').remove()" style="flex-shrink:0;align-self:flex-start">×</button>
+    </div>
+    <div style="display:flex;gap:8px;padding-left:24px;">
+      <div style="display:flex;align-items:center;gap:5px;background:rgba(107, 78, 155, 0.08);border:1px solid rgba(107, 78, 155, 0.2);border-radius:4px;padding:3px 8px;">
+        <label style="font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:.08em;color:var(--rubrum-mana);font-weight:700;white-space:nowrap">CUSTO MP</label>
+        <input type="number" min="0" max="99" placeholder="0" 
+          style="width:36px;border:none;background:none;font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:800;color:var(--rubrum-mana);outline:none;padding:0;text-align:center">
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;background:rgba(139,26,26,0.08);border:1px solid rgba(139,26,26,0.2);border-radius:4px;padding:3px 8px;">
+        <label style="font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:.08em;color:var(--rubrum-red);font-weight:700;white-space:nowrap">DANO</label>
+        <input type="text" placeholder="ex: +5 + 2D6" 
+          style="width:90px;border:none;background:none;font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:700;color:var(--rubrum-red);outline:none;padding:0">
+      </div>
+    </div>
+  `;
+  list.appendChild(card);
+}
+
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  const idx = id === 'creator' ? 0 : 1;
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+}
+
+function imprimirFicha() {
+  window.print();
+}
+
+function coletarFichaData() {
+  const eff = getEffectiveAttrs();
+  const extra = getExtraStats();
+  const sec = calcSecondary(eff, extra);
+  const classPrimary = document.getElementById('class-primary').value;
+  const classSecondary = state.level >= 5 ? document.getElementById('class-secondary').value : null;
+  const key1 = classPrimary + '+' + classSecondary;
+  const key2 = classSecondary + '+' + classPrimary;
+  const combinedClass = classSecondary ? (COMBINATIONS[key1] || COMBINATIONS[key2] || classPrimary + ' / ' + classSecondary) : classPrimary;
+  
+  const mult = getDamageMult();
+  const danoBase = eff[state.danoAttr] - 10;
+  
+  // CORREÇÃO: Aplicando a contagem de dados dinâmica no JSON exportado
+  const baseDiceCount = getBaseDiceCount(eff[state.danoAttr]);
+  
+  return {
+    _rubrum_ficha: true,
+    identidade: {
+      nome: document.getElementById('sheet-name')?.value || document.getElementById('char-name-input')?.value || 'Sem nome',
+      titulo: document.getElementById('sheet-title')?.value || ''
+    },
+    progresso: {
+      nivel: state.level,
+      nomNivel: LEVEL_NAMES ? LEVEL_NAMES[state.level] : String(state.level),
+      classePrimaria: classPrimary,
+      classeSecundaria: classSecondary,
+      classeCompleta: combinedClass,
+      raca: state.race
+    },
+    atributosBase: { ...eff },
+    atributosSecundarios: {
+      esquiva: sec.esquiva,
+      bloqueio: sec.bloqueio,
+      percepcao: sec.percepcao,
+      vontade: sec.vontade,
+      persuasao: sec.persuasao,
+      deslocamento: sec.deslocamento,
+      range: sec.range,
+      crit: sec.crit || 0
+    },
+    combate: {
+      hp: sec.hp,
+      mana: sec.mp,
+      danoBase: danoBase,
+      damageMult: mult,
+      diceCount: baseDiceCount * mult, // CORRIGIDO PARA O JSON
+      danoAttr: state.danoAttr,
+      danoFisico: getScaledDamage(eff.ST),
+      danoMagico: getScaledDamage(eff.IT)
+    },
+    doutrinas: Array.from(document.querySelectorAll('.doctrine-select')).map(sel => sel.value),
+    doutrinaNatural: RACE_NATURAL_DOCTRINE[state.race] || null,
+    habilidades: Array.from(document.querySelectorAll('#skill-list .skill-card')).map(card => {
+      const desc = card.querySelector('textarea')?.value?.trim() || '';
+      const inputs = card.querySelectorAll('input[type=number], input[type=text]');
+      const custo = inputs[0]?.value?.trim() || '0';
+      const dano  = inputs[1]?.value?.trim() || '';
+      return { desc, custo: parseInt(custo)||0, dano };
+    }).filter(h => h.desc),
+    armas: Array.from(document.querySelectorAll('#weapon-slots input')).map(el => el.value).filter(v => v.trim()),
+    inventario: Array.from(document.querySelectorAll('#item-list input')).map(el => el.value).filter(v => v.trim())
+  };
+}
+
+function salvarFichaJSON() {
+  const fichaData = coletarFichaData();
+  const nome = fichaData.identidade.nome || "personagem";
+  const blob = new Blob([JSON.stringify(fichaData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  
+  link.href = url;
+  link.download = nome.replace(/\s+/g, '_') + "_rubrum.json";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function salvarFichaHTML() {
+  const ficha = coletarFichaData();
+  const nome = ficha.identidade.nome || 'personagem';
+  const htmlContent = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ficha — ${nome} | Rubrum</title>
+<script>
+const RUBRUM_FICHA = ${JSON.stringify(ficha, null, 2)};
+<\/script>
+</head>
+<body style="font-family:sans-serif;background:#f5edd8;padding:2rem;color:#2a1f0e">
+<h1 style="font-family:Georgia,serif;color:#8B1A1A;margin-bottom:0.5rem">${nome}</h1>
+<p style="color:#6b5a3e;margin-bottom:1.5rem">${ficha.identidade.titulo || ''} · Nível ${ficha.progresso.nivel} · ${ficha.progresso.classeCompleta} · ${ficha.progresso.raca}</p>
+<p style="background:#fff3;border:1px solid #C9A84C;border-radius:6px;padding:0.75rem 1rem;color:#6b5a3e;font-size:0.9rem">
+  ✦ Importe este arquivo no <strong>Simulador de Batalha Rubrum</strong> para jogar.
+</p>
+<pre style="font-size:11px;margin-top:1.5rem;background:#fff8ee;padding:1rem;border-radius:6px;border:1px solid #C9A84C;overflow:auto">${JSON.stringify(ficha, null, 2)}</pre>
+</body>
+</html>`;
+  const blob = new Blob([htmlContent], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = nome.replace(/\s+/g, '_') + '_rubrum.html';
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+buildLevelGrid();
+buildAttrsGrid();
+buildClassSelects();
+buildRaceSelect();
+buildDoctrineSelects();
+recalcSecondary();
+onClassChange();
+onRaceChange();
+</script>
+</body>
+</html>
